@@ -8,6 +8,7 @@
 #include "Utils/mydebug.h"
 
 #include "HW/hwworker.h"
+#include "WSI/mywebserver.h"
 
 class MainWorker : public QObject
 {
@@ -20,13 +21,27 @@ public:
 private:
     // ini options
     QString readINI(const QString path, const QString group, const QString &key);
-    uint8_t setEnvironment(const uint8_t dbg_val, bool gpio);
+    uint8_t setEnvironment(const uint8_t dbg_val);
 
-    // start HW
+    // HW
     HWWorker* m_hwworker;
+    // WS
+    MyWebserver* m_webserver;
 
+    // WS settings
+    QString m_ip;
+    int m_port;
+
+signals:
+    //HW needs to attach
+    void socketValChanged(HWInfo);
+    //WS needs to attach
+    void hardwareValChanged(HWInfo);
 private slots:
-    void onValChanged(HWInfo);
+    // from socket signal
+    void onSocketValChanged(HWInfo);
+    // from hardware singal valueChanged()
+    void onHWValChanged(HWInfo);
 };
 
 #endif // MAINWORKER_H

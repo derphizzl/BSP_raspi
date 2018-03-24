@@ -34,7 +34,7 @@ void WebServerVar::setValue(const SENDER sender, const HWInfo val)
             socketsend(msg);
             break;
         case SOCKET:
-            emit valueChanged(sender, info);
+            emit valueChanged(info); //signal to HW
             break;
         case CLOUD:
         default:
@@ -65,9 +65,9 @@ QWebSocket *WebServerVar::getSocket()
     return this->m_mySocket;
 }
 
-void WebServerVar::onHWValueChanged(const HWInfo)
+void WebServerVar::onHWMessageReceived(const HWInfo info)
 {
-
+    setValue(HARDWARE, info);
 }
 
 void WebServerVar::onSocketMessageReceived(QString msg)

@@ -17,7 +17,7 @@ uint8_t GPIO::initGPIO(const QString name, const int port, const QString directi
     m_direction = direction;
     m_initVal = initVal;
 
-    buttonName = name;
+    this->m_name = name;
     m_valuePath = QString(m_gpioBasePath+"gpio%1"+"/value").arg(m_port);
     m_directionPath = QString(m_gpioBasePath+"gpio%1"+"/direction").arg(m_port);
     m_exportPath = QString(m_gpioBasePath + "export");
@@ -59,7 +59,7 @@ void GPIO::onValueChanged()
 {
     uint8_t myval;
     getValue(myval);
-    HWInfo tmp = {this->buttonName, HW_GPIO, {1, m_port.toInt(), m_direction}, myval};
+    HWInfo tmp = {this->m_name, HW_GPIO, {1, m_port.toInt(), m_direction}, myval};
     emit valueChanged(tmp);
 }
 
@@ -133,6 +133,11 @@ uint8_t GPIO::setValue(const uint8_t value)
         MyDebug::debugprint(HIGH, "GPIO env not set!!");
         return 0;
     }
+}
+
+QString GPIO::getName()
+{
+    return m_name;
 }
 
 uint8_t GPIO::getValue(uint8_t &myvalue)

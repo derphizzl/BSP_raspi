@@ -17,7 +17,6 @@ public:
     HWWorker();
     ~HWWorker();
     uint8_t initializeHW();
-    void prepareHW(bool withGPIO);
 
 private:
     // GPIOs
@@ -26,8 +25,11 @@ private:
     uint8_t closeGPIO();
     QVector<GPIO*> m_gpios;
 
+    void checkAttachedHW();
+
 public slots:
     void onValueChanged(HWInfo);
+    void onSocketMSG(HWInfo);
 
 signals:
     void valueChanged(HWInfo);

@@ -17,8 +17,7 @@ public:
     uint8_t closeGPIO();
     uint8_t getValue( uint8_t& value );
     uint8_t setValue( const uint8_t value );
-
-    QString buttonName;
+    QString getName();
 
 signals:
     void valueChanged( HWInfo io );
@@ -28,6 +27,7 @@ private slots:
 
 private:
     QFileSystemWatcher m_watcher;
+    QString m_name;
     QString m_port;
     QString m_gpioBasePath;
     QString m_valuePath;

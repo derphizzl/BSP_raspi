@@ -4,7 +4,7 @@
 
 //add new HW here & define NUM, as well as in hwworker.h member m_HW, readINI, initializeHW, prepareHW, setEnvironment
 
-#define HWNUM_GPIO (sizeof(attachedHW) / sizeof(HWInfo))
+#define HWNUM (sizeof(attachedHW) / sizeof(HWInfo))
 
 const HWInfo attachedHW[] = {
     {"GPIO4", HW_GPIO, {1, 4, "Out"}, 0},

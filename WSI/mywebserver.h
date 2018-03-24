@@ -8,24 +8,24 @@
 #include "../Utils/mydebug.h"
 #include "../WSI/webservervar.h"
 
-//QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
-//QT_FORWARD_DECLARE_CLASS(QWebSocket)
-
 class MyWebserver : public QObject
 {
     Q_OBJECT
 public:
-    explicit MyWebserver(quint16 port, bool debug = false, QObject *parent = Q_NULLPTR);
+    explicit MyWebserver(quint16 port, QObject *parent = Q_NULLPTR);
     ~MyWebserver();
+    void getVar(QList<WebServerVar *> &);
 
 Q_SIGNALS:
     void closed();
-    void messageReceived(const QWebSocket*, const QString msg);
+    void messageToHWReceived(const HWInfo msg);
+    void messageToSocketReceived(const HWInfo msg);
 
 private Q_SLOTS:
     void onNewConnection();
-    void processTextMessage(QString message);
-    void socketDisconnected(WebServerVar *);
+    void socketDisconnected(WebServerVar *);    // signal socketDisconnected from WSVar
+    void onHWtoSocketMSGReceived(HWInfo);
+    void onSocketToHWMSGReceived(HWInfo);   // signal valueChanged from WSVar
 
 private:
     QWebSocketServer *m_pWebSocketServer;

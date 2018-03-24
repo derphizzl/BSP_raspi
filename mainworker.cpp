@@ -7,7 +7,7 @@ MainWorker::MainWorker()
 
 uint8_t MainWorker::startUp()
 {
-    QString dbg_ini_val;
+    QString dbg_ini_val, port_ini;
     //read ini file
     //debug info
     if((dbg_ini_val = readINI(QString(INI_FILE_PATH), "debug", "DebugPriority")) == NULL) {
@@ -15,29 +15,36 @@ uint8_t MainWorker::startUp()
         return 0;
     }
 
-    //HWInfo
-    //gpio
-    QString gpio_ini_val;
-    if((dbg_ini_val = readINI(QString(INI_FILE_PATH), "device", "gpio")) == NULL) {
+    //ws port
+    if((port_ini = readINI(QString(INI_FILE_PATH), "network", "port")) == NULL)
+    {
         qDebug() << "ERROR reading ini file";
         return 0;
     }
+    m_port = port_ini.toInt();
 
-    if(!setEnvironment(dbg_ini_val.toInt(),
-                       gpio_ini_val.toInt() == 1 ? true : false))
+    // initialize env according to ini file
+    if(!setEnvironment(dbg_ini_val.toInt()))
     {
         qDebug() << "ERROR setting the environment";
         return 0;
     }
 
+    // initialize HW
     if(!m_hwworker->initializeHW())
     {
         qDebug() << "ERROR in initializing HW on startUP routine";
         return 0;
     }
 
+    // initialize WebService
+    m_webserver = new MyWebserver((qint16) m_port);
+
     // connections
-    QObject::connect(m_hwworker, SIGNAL(valueChanged(HWInfo)), this, SLOT(onValChanged(HWInfo)));
+    QObject::connect(m_hwworker, SIGNAL(valueChanged(HWInfo)), this, SLOT(onHWValChanged(HWInfo)));
+    QObject::connect(this, SIGNAL(socketValChanged(HWInfo)), m_hwworker, SLOT(onSocketMSG(HWInfo)));
+    QObject::connect(m_webserver, SIGNAL(valueChanged(HWInfo)), this, SLOT(onSocketValChanged(HWInfo)));
+    QObject::connect(this, SIGNAL(hardwareValChanged(HWInfo)), m_webserver, SLOT(onHWtoSocketMSGReceived(HWInfo)));
     return 1;
 }
 
@@ -60,14 +67,18 @@ QString MainWorker::readINI(const QString path, const QString group, const QStri
     return retval;
 }
 
-uint8_t MainWorker::setEnvironment(const uint8_t dbg_val, bool gpio)
+uint8_t MainWorker::setEnvironment(const uint8_t dbg_val)
 {
     MyDebug::setDebugLevel((PRIORITY)dbg_val);
-    m_hwworker->prepareHW(gpio);
     return 1;
 }
 
-void MainWorker::onValChanged(HWInfo io)
+void MainWorker::onSocketValChanged(HWInfo info)
 {
-    qDebug() << "Data value changed: " << io.name << io.val;
+    emit socketValChanged(info);
+}
+
+void MainWorker::onHWValChanged(HWInfo io)
+{
+    emit hardwareValChanged(io);
 }

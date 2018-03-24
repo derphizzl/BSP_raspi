@@ -10,35 +10,40 @@ HWWorker::~HWWorker()
     closeGPIO();
 }
 
+void HWWorker::checkAttachedHW()
+{
+    for(uint i = 0; i < HWNUM; ++i)
+    {
+        if(attachedHW[i].type == HW_GPIO)
+        {
+            m_withGPIO = true;
+        }
+    }
+}
+
 uint8_t HWWorker::initializeHW()
 {
     MyDebug::debugprint(MEDIUM, "Initializing Hardware..");
+    checkAttachedHW();
+    //GPIO
     if(m_withGPIO)
     {
-        if(initGPIO())
-        {
-            return 1;
-        }
-        else
+        if(!initGPIO())
         {
             MyDebug::debugprint(HIGH, "ERROR: Hardware initiatlizing returned 0");
             return 0;
         }
     }
-    MyDebug::debugprint(MEDIUM, "Initializing Hardware done.");
-    return 1;
-}
 
-void HWWorker::prepareHW(bool withGPIO)
-{
-    this->m_withGPIO = withGPIO;
+    MyDebug::debugprint(MEDIUM, "HW initializing done");
+
+    return 1;
 }
 
 uint8_t HWWorker::initGPIO()
 {
     MyDebug::debugprint(MEDIUM, "Initializing GPIOs..");
-    m_gpios.resize(HWNUM_GPIO);
-    for(uint i = 0; i < HWNUM_GPIO; i++)
+    for(uint i = 0; i < HWNUM; i++)
     {
         if(attachedHW[i].type == HW_GPIO)
         {
@@ -77,6 +82,27 @@ uint8_t HWWorker::closeGPIO()
 void HWWorker::onValueChanged(HWInfo info)
 {
     emit valueChanged(info);
+}
+
+void HWWorker::onSocketMSG(HWInfo info)
+{
+    //change gpio val
+    switch(info.type)
+    {
+    case HW_GPIO:
+        for(int i = 0; i < m_gpios.size(); ++i)
+        {
+            if(m_gpios.at(i)->getName() == info.name)
+            {
+                m_gpios.at(i)->setValue(info.val);
+                break;
+            }
+        }
+        break;
+    default:
+        break;
+    }
+
 }
 
 
