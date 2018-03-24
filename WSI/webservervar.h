@@ -8,12 +8,15 @@
 #include "../Utils/mydebug.h"
 #include "../Utils/helper.h"
 
-class WebServerVar
+class WebServerVar : public QObject
 {
+    Q_OBJECT
+
 public:
     WebServerVar();
     void initVar(const HWInfo);
     void setValue(const SENDER, const uint8_t);
+    void getValue(uint32_t& value);
 
 signals:
     void valueChanged(const SENDER, const HWInfo);

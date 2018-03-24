@@ -17,19 +17,38 @@ void WebServerVar::initVar(const HWInfo info)
 
 void WebServerVar::setValue(const SENDER sender, const uint8_t val)
 {
+    QJsonObject jo;
+    QString msg;
     HWInfo info;
-    info.name = m_myName;
-    info.val = val;
-
-    switch(sender)
+    //is this msg for me?
+    if(info.name.compare(m_myName) == 0)
     {
-    case HARDWARE:
-        // socketSend
-        QString msg( Helper::convertJSonObjectToQString( Helper::convertHWInfoToQJsonObject(info) ) );
-        break;
-    case SOCKET:
-        emit valueChanged(sender, info);
+        m_myValue = info.val = val;
+
+        switch(sender)
+        {
+        case HARDWARE:
+            // socketSend
+            jo = Helper::convertHWInfoToQJsonObject(info);
+            msg = Helper::convertJSonObjectToQString(jo);
+            break;
+        case SOCKET:
+            emit valueChanged(sender, info);
+            break;
+        case CLOUD:
+        default:
+            break;
+        }
     }
+}
+
+void WebServerVar::getValue(uint32_t &value)
+{
+    value = m_myValue;
+}
+
+void WebServerVar::onHWValueChanged(const HWInfo)
+{
 
 }
 

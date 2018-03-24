@@ -8,8 +8,8 @@ Helper::Helper()
 QJsonObject Helper::convertHWInfoToQJsonObject(const HWInfo info)
 {
     QJsonObject myJObject;
-    myJObject.insert("name", QJsonValue::fromVariant(info.name));
-    myJObject.insert("value", QJsonValue::fromVariant(info.val));
+    myJObject.insert("name", QJsonValue::fromVariant(QVariant(info.name)));
+    myJObject.insert("value", QJsonValue::fromVariant(QVariant(info.val)));
 
     return myJObject;
 }

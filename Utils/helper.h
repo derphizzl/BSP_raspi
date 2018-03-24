@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QJsonObject>
+#include <QJsonDocument>
+#include <QVariant>
 #include "types.h"
 
 class Helper

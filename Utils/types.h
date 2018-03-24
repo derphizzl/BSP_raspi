@@ -21,7 +21,8 @@ typedef enum PRIORITY {
 
 typedef enum SENDER {
     HARDWARE = 0,
-    SOCKET
+    SOCKET,
+    CLOUD
 } SENDER;
 
 #endif // TYPES_H
