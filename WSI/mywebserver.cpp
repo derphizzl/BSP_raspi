@@ -10,8 +10,7 @@ MyWebserver::MyWebserver(quint16 port, bool debug, QObject *parent) :
     m_debug(debug)
 {
     if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
-        if (m_debug)
-            qDebug() << "MyWebserver listening on port" << port;
+        MyDebug::debugprint(HIGH, "MyWebserver listening on port" + port);
         connect(m_pWebSocketServer, &QWebSocketServer::newConnection,
                 this, &MyWebserver::onNewConnection);
         connect(m_pWebSocketServer, &QWebSocketServer::closed, this, &MyWebserver::closed);
@@ -24,44 +23,41 @@ MyWebserver::~MyWebserver()
     qDeleteAll(m_clients.begin(), m_clients.end());
 }
 
+//static MyWebserver &MyWebserver::Instance()
+//{
+//    static MyWebserver* myWS = NULL;
+//    if(myWS == NULL)
+//    {
+//        myWS = new MyWebserver(m_myPort, m_isDebug);
+//    }
+
+//    return myWS;
+//}
+
 void MyWebserver::onNewConnection()
 {
-    QWebSocket *pSocket = m_pWebSocketServer->nextPendingConnection();
+    WebServerVar* newvar;
+    newvar->setSocket(m_pWebSocketServer->nextPendingConnection());
+    MyDebug::debugprint(MEDIUM, "New connection from " + newvar->getSocket()->peerAddress().toString());
+    connect(newvar, &WebServerVar::socketDisconnected, this, &MyWebserver::socketDisconnected);
 
-    connect(pSocket, &QWebSocket::textMessageReceived, this, &MyWebserver::processTextMessage);
-    connect(pSocket, &QWebSocket::binaryMessageReceived, this, &MyWebserver::processBinaryMessage);
-    connect(pSocket, &QWebSocket::disconnected, this, &MyWebserver::socketDisconnected);
-
-    m_clients << pSocket;
+    m_clients << newvar;
 }
 
 void MyWebserver::processTextMessage(QString message)
 {
+    // check for login
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
-    if (m_debug)
-        qDebug() << "Message received:" << message;
-    if (pClient) {
-        pClient->sendTextMessage(message);
-    }
+    MyDebug::debugprint(LOW, "Message received:" + message);
+    emit messageReceived(pClient, message);
 }
 
-void MyWebserver::processBinaryMessage(QByteArray message)
+void MyWebserver::socketDisconnected(WebServerVar *sock)
 {
-    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
-    if (m_debug)
-        qDebug() << "Binary Message received:" << message;
-    if (pClient) {
-        pClient->sendBinaryMessage(message);
-    }
-}
-
-void MyWebserver::socketDisconnected()
-{
-    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
-    if (m_debug)
-        qDebug() << "socketDisconnected:" << pClient;
+    WebServerVar *pClient = sock;
     if (pClient) {
         m_clients.removeAll(pClient);
-        pClient->deleteLater();
+        pClient->getSocket()->deleteLater();
     }
+    MyDebug::debugprint(MEDIUM, "socketDisconnected:" + pClient->getName());
 }

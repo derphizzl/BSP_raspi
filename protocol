@@ -1,0 +1,13 @@
+WebSocket:
+
+{
+name:"Name",
+command:"add"/"remove"/"getValue"/"setValue"
+type:"type,
+gpio_info: {
+        used:"0"/"1"
+	port:"port",
+	direction:"direction"
+},
+value:"value"
+}

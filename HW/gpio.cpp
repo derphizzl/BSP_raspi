@@ -59,7 +59,7 @@ void GPIO::onValueChanged()
 {
     uint8_t myval;
     getValue(myval);
-    HWInfo tmp = {this->buttonName, HW_GPIO, m_port.toInt(), m_direction, myval};
+    HWInfo tmp = {this->buttonName, HW_GPIO, {1, m_port.toInt(), m_direction}, myval};
     emit valueChanged(tmp);
 }
 

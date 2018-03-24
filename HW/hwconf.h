@@ -7,7 +7,7 @@
 #define HWNUM_GPIO (sizeof(attachedHW) / sizeof(HWInfo))
 
 const HWInfo attachedHW[] = {
-    {"GPIO4", HW_GPIO, 4, "Out", 0},              // GPIO4, Pin 4, Direction In, InitialValue 0
+    {"GPIO4", HW_GPIO, {1, 4, "Out"}, 0},
     //{"GPIO2", 5, "Out", 0},
     //{"GPIO3", 6, "Out", 0}
 };

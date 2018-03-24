@@ -5,11 +5,17 @@ typedef enum HWTYPE {
     HW_GPIO = 0,
 } HWTYPE;
 
+// maybe a gerneral version would be nice
 typedef struct {
-    QString name;
-    HWTYPE type;
+    uint8_t used;
     int port;
     QString direction;
+} GPIOInfo;
+
+typedef struct HWInfo {
+    QString name;
+    HWTYPE type;
+    GPIOInfo gpio_info;
     uint8_t val;
 } HWInfo;
 

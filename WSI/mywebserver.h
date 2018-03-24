@@ -5,6 +5,8 @@
 #include <QtCore/QList>
 #include <QtCore/QByteArray>
 #include <QtWebSockets/QtWebSockets>
+#include "../Utils/mydebug.h"
+#include "../WSI/webservervar.h"
 
 //QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 //QT_FORWARD_DECLARE_CLASS(QWebSocket)
@@ -18,16 +20,17 @@ public:
 
 Q_SIGNALS:
     void closed();
+    void messageReceived(const QWebSocket*, const QString msg);
 
 private Q_SLOTS:
     void onNewConnection();
     void processTextMessage(QString message);
-    void processBinaryMessage(QByteArray message);
-    void socketDisconnected();
+    void socketDisconnected(WebServerVar *);
 
 private:
     QWebSocketServer *m_pWebSocketServer;
-    QList<QWebSocket *> m_clients;
+    QWebSocket* m_myWebSocket;
+    QList<WebServerVar *> m_clients;
     bool m_debug;
 };
 

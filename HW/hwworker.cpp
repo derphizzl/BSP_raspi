@@ -44,7 +44,7 @@ uint8_t HWWorker::initGPIO()
         {
             GPIO* tmpgpio = new GPIO();
             // initialize GPIOs, attach to signal and push them into m_gpios
-            if(tmpgpio->initGPIO(attachedHW[i].name, attachedHW[i].port, attachedHW[i].direction, attachedHW[i].val)) {
+            if(tmpgpio->initGPIO(attachedHW[i].name, attachedHW[i].gpio_info.port, attachedHW[i].gpio_info.direction, attachedHW[i].val)) {
                 QObject::connect(tmpgpio, SIGNAL(valueChanged(HWInfo)), this, SLOT(onValueChanged(HWInfo)));
                 m_gpios.push_back(tmpgpio);
             }
