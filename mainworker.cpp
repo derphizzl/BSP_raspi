@@ -56,6 +56,7 @@ uint8_t MainWorker::startUp()
 
 uint8_t MainWorker::setEnvironment(const uint8_t dbg_val)
 {
+    qDebug() << "Application debug level" << dbg_val;
     MyDebug::setDebugLevel((PRIORITY)dbg_val);
     return 1;
 }

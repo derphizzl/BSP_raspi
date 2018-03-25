@@ -131,14 +131,14 @@ uint8_t WebServerVar::checkCommand()
             case -2:                //object not initialized yet
                 tmpobj = Helper::convertStringToJSonObject(m_messageIn);
                 tmpinf = Helper::convertJSonObjectToHWInfo(tmpobj);
-                tmpinf.val = -1;
+                tmpinf.val = 1;
                 initVar(tmpinf);
 
                 break;
             case -1:                //a
                 tmpobj = Helper::convertStringToJSonObject(m_messageIn);
                 tmpinf = Helper::convertJSonObjectToHWInfo(tmpobj);
-                tmpinf.val = -1;
+                tmpinf.val = 1;
                 initVar(tmpinf);
                 tmpinf.command = "add";
                 socketsend(Helper::convertJSonObjectToQString(Helper::convertHWInfoToQJsonObject(tmpinf)));
