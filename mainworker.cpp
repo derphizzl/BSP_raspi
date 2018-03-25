@@ -16,13 +16,13 @@ uint8_t MainWorker::startUp()
     QString dbg_ini_val, port_ini;
     //read ini file
     //debug info
-    if((dbg_ini_val = readINI(QString(INI_FILE_PATH), "Debug", "DebugPriority")) == NULL) {
+    if((dbg_ini_val = Helper::readINI(QString(INI_FILE_PATH), "Debug", "DebugPriority")) == NULL) {
         qDebug() << "ERROR reading debug information from ini file";
         return 0;
     }
 
     //ws port
-    if((port_ini = readINI(QString(INI_FILE_PATH), "Network", "Port")) == NULL)
+    if((port_ini = Helper::readINI(QString(INI_FILE_PATH), "Network", "Port")) == NULL)
     {
         qDebug() << "ERROR reading network information from ini file";
         return 0;
@@ -52,25 +52,6 @@ uint8_t MainWorker::startUp()
     QObject::connect(m_webserver, SIGNAL(messageToHWReceived(HWInfo)), this, SLOT(onSocketValChanged(HWInfo)));
     QObject::connect(this, SIGNAL(hardwareValChanged(HWInfo)), m_webserver, SLOT(onHWtoSocketMSGReceived(HWInfo)));
     return 1;
-}
-
-QString MainWorker::readINI(const QString path, const QString group, const QString &key)
-{
-    QString retval = NULL;
-    QSettings settings(path, QSettings::IniFormat);
-    settings.beginGroup(group);
-    const QStringList childKeys = settings.childKeys();
-    foreach (const QString &childKey, childKeys)
-    {
-        if(childKey.compare(key) == 0)
-        {
-            retval = settings.value(childKey).toString();
-            break;
-        }
-    }
-    settings.endGroup();
-
-    return retval;
 }
 
 uint8_t MainWorker::setEnvironment(const uint8_t dbg_val)

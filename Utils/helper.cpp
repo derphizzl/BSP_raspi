@@ -82,3 +82,22 @@ uint8_t Helper::int2HWTYPE(const int type, HWTYPE& hwtype)
         return 0;
     }
 }
+
+QString Helper::readINI(const QString path, const QString group, const QString &key)
+{
+    QString retval = NULL;
+    QSettings settings(path, QSettings::IniFormat);
+    settings.beginGroup(group);
+    const QStringList childKeys = settings.childKeys();
+    foreach (const QString &childKey, childKeys)
+    {
+        if(childKey.compare(key) == 0)
+        {
+            retval = settings.value(childKey).toString();
+            break;
+        }
+    }
+    settings.endGroup();
+
+    return retval;
+}

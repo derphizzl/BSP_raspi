@@ -4,9 +4,8 @@
 #define INI_FILE_PATH "/home/pi/BSP/config.ini"
 
 #include <QObject>
-#include <QSettings>
 #include "Utils/mydebug.h"
-
+#include "Utils/helper.h"
 #include "HW/hwworker.h"
 #include "WSI/mywebserver.h"
 
@@ -21,7 +20,6 @@ public:
 
 private:
     // ini options
-    QString readINI(const QString path, const QString group, const QString &key);
     uint8_t setEnvironment(const uint8_t dbg_val);
 
     // HW

@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QVariant>
+#include <QSettings>
 #include "types.h"
 
 class Helper
@@ -17,6 +18,7 @@ public:
     static QJsonObject convertStringToJSonObject(const QString);
     static QString convertJSonObjectToQString(const QJsonObject);
     static uint8_t int2HWTYPE(const int, HWTYPE&);
+    static QString readINI(const QString path, const QString group, const QString &key);
 };
 
 #endif // HELPER_H
