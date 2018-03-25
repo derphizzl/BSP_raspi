@@ -72,7 +72,6 @@ uint8_t HWWorker::closeGPIO()
     {
         GPIO* tmp = *it;
         tmp->closeGPIO();
-        delete it;
     }
     m_gpios.clear();
     MyDebug::debugprint(MEDIUM, "Done.", "");
@@ -104,7 +103,6 @@ void HWWorker::onSocketMSG(HWInfo info)
     default:
         break;
     }
-
 }
 
 

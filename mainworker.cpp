@@ -5,6 +5,12 @@ MainWorker::MainWorker()
     m_hwworker = new HWWorker();
 }
 
+MainWorker::~MainWorker()
+{
+    m_hwworker->~HWWorker();
+    m_webserver->~MyWebserver();
+}
+
 uint8_t MainWorker::startUp()
 {
     QString dbg_ini_val, port_ini;

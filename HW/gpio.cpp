@@ -8,7 +8,7 @@ GPIO::GPIO()
 
 GPIO::~GPIO()
 {
-    unexportGPIO();
+    closeGPIO();
 }
 
 uint8_t GPIO::initGPIO(const QString name, const int port, const QString direction, const uint8_t initVal)
@@ -60,7 +60,7 @@ void GPIO::onValueChanged()
     MyDebug::debugprint(LOW, "GPIO value changed", "");
     uint8_t myval;
     getValue(myval);
-    HWInfo tmp = {this->m_name, HW_GPIO, {1, m_port.toInt(), m_direction}, myval};
+    HWInfo tmp = {this->m_name, m_command, HW_GPIO, {1, m_port.toInt(), m_direction}, myval};
     emit valueChanged(tmp);
 }
 
@@ -119,14 +119,15 @@ uint8_t GPIO::setValue(const uint8_t value)
 {
     if(m_isGPIOEnvSet)
     {
+        m_command = "setValue";
         FILE * fp;
         if ((fp = fopen(m_valuePath.toLatin1(), "rb+")) == NULL)
             return 0;
         rewind(fp);
         if(value)
-            fwrite("high", sizeof(char),4, fp);
+            fwrite("1", sizeof(char),1, fp);
         else
-            fwrite("low", sizeof(char),3, fp);
+            fwrite("0", sizeof(char),1, fp);
         fclose(fp);
         MyDebug::debugprint(LOW, "Set GPIO value to ", QString::number((int)value));
         return 1;
@@ -147,6 +148,7 @@ uint8_t GPIO::getValue(uint8_t &myvalue)
 {
     if(m_isGPIOEnvSet)
     {
+        m_command = "setValue";
         FILE * fp;
         char value;
         if ((fp = fopen(m_valuePath.toLatin1(), "rb+")) == NULL)

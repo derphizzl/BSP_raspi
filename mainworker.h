@@ -15,6 +15,7 @@ class MainWorker : public QObject
     Q_OBJECT
 public:
     MainWorker();
+    ~MainWorker();
     uint8_t startUp();
     uint8_t exitBSP();
 

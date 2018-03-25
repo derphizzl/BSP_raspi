@@ -53,7 +53,7 @@ void MyWebserver::onHWtoSocketMSGReceived(HWInfo info)
 
 void MyWebserver::onSocketToHWMSGReceived(HWInfo info)
 {
-    MyDebug::debugprint(MEDIUM, "onSocketToHWMSGReceived value ", QString::number(info.val));
+    MyDebug::debugprint(LOW, "onSocketToHWMSGReceived value ", QString::number(info.val));
     emit messageToHWReceived(info);
 }
 

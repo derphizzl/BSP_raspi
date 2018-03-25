@@ -27,6 +27,7 @@ private slots:
 
 private:
     QFileSystemWatcher m_watcher;
+    QString m_command;
     QString m_name;
     QString m_port;
     QString m_gpioBasePath;

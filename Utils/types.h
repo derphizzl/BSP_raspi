@@ -14,6 +14,7 @@ typedef struct {
 
 typedef struct HWInfo {
     QString name;
+    QString command;
     HWTYPE type;
     GPIOInfo gpio_info;
     int val;
