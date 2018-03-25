@@ -9,6 +9,7 @@ MainWorker::~MainWorker()
 {
     m_hwworker->~HWWorker();
     m_webserver->~MyWebserver();
+    m_dbvar->~DBVar();
 }
 
 uint8_t MainWorker::startUp()
@@ -46,12 +47,29 @@ uint8_t MainWorker::startUp()
     // initialize WebService
     m_webserver = new MyWebserver(m_port);
 
+    //initialize DB
+    m_dbvar = new DBVar();
+
     // connections
-    QObject::connect(m_hwworker, SIGNAL(valueChanged(HWInfo)), this, SLOT(onHWValChanged(HWInfo)));
-    QObject::connect(this, SIGNAL(socketValChanged(HWInfo)), m_hwworker, SLOT(onSocketMSG(HWInfo)));
-    QObject::connect(m_webserver, SIGNAL(messageToHWReceived(HWInfo)), this, SLOT(onSocketValChanged(HWInfo)));
-    QObject::connect(this, SIGNAL(hardwareValChanged(HWInfo)), m_webserver, SLOT(onHWtoSocketMSGReceived(HWInfo)));
+    doConnect();
+
     return 1;
+}
+
+void MainWorker::doConnect()
+{
+    //From WS to DB to HW
+    QObject::connect(m_webserver, SIGNAL(messageToHWReceived(SENDER, HWInfo)), this, SLOT(onSocketValChanged(SENDER, HWInfo)));
+    QObject::connect(this, SIGNAL(socketValChanged(SENDER, HWInfo)), m_dbvar, SLOT(onGetData(SENDER, const HWInfo)));
+    QObject::connect(m_dbvar, SIGNAL(sigGotValue(SENDER, const HWInfo)), m_hwworker, SLOT(onSocketMSG(SENDER, HWInfo)));
+
+    //From HW to DB to WS
+    QObject::connect(m_hwworker, SIGNAL(valueChanged(SENDER, HWInfo)), this, SLOT(onHWValChanged(SENDER, HWInfo)));
+    QObject::connect(this, SIGNAL(hardwareValChanged(SENDER, HWInfo)), m_dbvar, SLOT(onGetData(SENDER, const HWInfo)));
+    QObject::connect(m_dbvar, SIGNAL(sigGotValue(SENDER, const HWInfo)), m_webserver, SLOT(onHWtoSocketMSGReceived(SENDER, HWInfo)));
+
+    //From WS getValue
+    QObject::connect(m_webserver, SIGNAL(sigGetValue(SENDER, const HWInfo)), m_dbvar, SLOT(onGetData(SENDER, const HWInfo)));
 }
 
 uint8_t MainWorker::setEnvironment(const uint8_t dbg_val)
@@ -61,14 +79,24 @@ uint8_t MainWorker::setEnvironment(const uint8_t dbg_val)
     return 1;
 }
 
-void MainWorker::onSocketValChanged(HWInfo info)
+void MainWorker::onSocketValChanged(SENDER sender, HWInfo info)
 {
     MyDebug::debugprint(LOW, "onSocketValChanged val", QString::number(info.val));
-    emit socketValChanged(info);
+    emit socketValChanged(sender, info);
 }
 
-void MainWorker::onHWValChanged(HWInfo io)
+void MainWorker::onHWValChanged(SENDER sender, HWInfo info)
 {
-    MyDebug::debugprint(LOW, "onHWVChanged val", QString::number(io.val));
-    emit hardwareValChanged(io);
+    MyDebug::debugprint(LOW, "onHWVChanged val", QString::number(info.val));
+    emit hardwareValChanged(sender, info);
+}
+
+void MainWorker::onDBValFromSocketChanged(HWInfo info)
+{
+    emit socketValChanged(SOCKET, info);
+}
+
+void MainWorker::onDBValFromHWChanged(HWInfo info)
+{
+    emit hardwareValChanged(HARDWARE, info);
 }

@@ -1,13 +1,14 @@
 #ifndef MAINWORKER_H
 #define MAINWORKER_H
 
-#define INI_FILE_PATH "/home/pi/BSP/config.ini"
-
 #include <QObject>
 #include "Utils/mydebug.h"
 #include "Utils/helper.h"
 #include "HW/hwworker.h"
 #include "WSI/mywebserver.h"
+#include "DB/dbvar.h"
+
+#define INI_FILE_PATH "/home/pi/BSP/config.ini"
 
 class MainWorker : public QObject
 {
@@ -26,21 +27,27 @@ private:
     HWWorker* m_hwworker;
     // WS
     MyWebserver* m_webserver;
+    // DB
+    DBVar* m_dbvar;
 
     // WS settings
     QString m_ip;
     int m_port;
 
+    void doConnect();
 signals:
     //HW needs to attach
-    void socketValChanged(HWInfo);
+    void socketValChanged(SENDER, HWInfo);
     //WS needs to attach
-    void hardwareValChanged(HWInfo);
-private slots:
+    void hardwareValChanged(SENDER, HWInfo);
+public slots:
     // from socket signal
-    void onSocketValChanged(HWInfo);
+    void onSocketValChanged(SENDER, HWInfo);
     // from hardware singal valueChanged()
-    void onHWValChanged(HWInfo);
+    void onHWValChanged(SENDER sender, HWInfo);
+
+    void onDBValFromHWChanged(HWInfo info);
+    void onDBValFromSocketChanged(HWInfo info);
 };
 
 #endif // MAINWORKER_H

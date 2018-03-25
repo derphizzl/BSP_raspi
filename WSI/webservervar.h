@@ -16,7 +16,7 @@ class WebServerVar : public QObject
 public:
     WebServerVar();
     void initVar(const HWInfo);
-    void setValue(const SENDER, const HWInfo);
+    void setValue(const SENDER, HWInfo);
     void getValue(uint32_t& value);
     QString getName();
     void setSocket(QWebSocket *socket);
@@ -25,10 +25,11 @@ public:
 signals:
     void valueChanged(HWInfo);
     void socketDisconnected(WebServerVar *);
+    void sigGetValue(QString key);
 
 public slots:
     // send data over socket
-    void onHWMessageReceived(HWInfo);
+    void onHWMessageReceived(SENDER,HWInfo);
     void onSocketMessageReceived(QString msg);
     void onSocketDisconnected();
 

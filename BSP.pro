@@ -16,7 +16,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += main.cpp \
-    DB/dbworker.cpp \
     HW/gpio.cpp \
     WSI/mywebserver.cpp \
     WSI/webservervar.cpp \
@@ -28,7 +27,6 @@ SOURCES += main.cpp \
     Utils/helper.cpp
 
 HEADERS += \
-    DB/dbworker.h \
     HW/gpio.h \
     WSI/mywebserver.h \
     WSI/webservervar.h \
@@ -37,6 +35,6 @@ HEADERS += \
     Utils/mydebug.h \
     HW/hwconf.h \
     Utils/types.h \
-    HW/hwworker.h \
     HW/buttonpress.h \
-    Utils/helper.h
+    Utils/helper.h \
+    HW/hwworker.h

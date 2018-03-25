@@ -61,7 +61,7 @@ void GPIO::onValueChanged()
     uint8_t myval;
     getValue(myval);
     HWInfo tmp = {this->m_name, m_command, HW_GPIO, {1, m_port.toInt(), m_direction}, myval};
-    emit valueChanged(tmp);
+    emit valueChanged(HARDWARE, tmp);
 }
 
 uint8_t GPIO::closeGPIO()

@@ -20,7 +20,7 @@ public:
     QString getName();
 
 signals:
-    void valueChanged( HWInfo io );
+    void valueChanged( SENDER,  HWInfo io );
 
 private slots:
     void onValueChanged();

@@ -30,8 +30,9 @@ void MyWebserver::onNewConnection()
     MyDebug::debugprint(HIGH, "New connection from ", newvar->getSocket()->peerAddress().toString());
     // connect WSV to WS
     connect(newvar, &WebServerVar::socketDisconnected, this, &MyWebserver::socketDisconnected);
-    connect(this, SIGNAL(messageToSocketReceived(HWInfo)), newvar, SLOT(onHWMessageReceived(HWInfo)));
+    connect(this, SIGNAL(messageToSocketReceived(SENDER, HWInfo)), newvar, SLOT(onHWMessageReceived(SENDER, HWInfo)));
     connect(newvar, SIGNAL(valueChanged(HWInfo)), this, SLOT(onSocketToHWMSGReceived(HWInfo)));
+    connect(newvar, SIGNAL(sigGetValue(QString)), this, SLOT(onGetValue(QString)));
 
     m_clients << newvar;
 }
@@ -46,14 +47,26 @@ void MyWebserver::socketDisconnected(WebServerVar *sock)
     MyDebug::debugprint(MEDIUM, "Socket disconnected:", pClient->getName());
 }
 
-void MyWebserver::onHWtoSocketMSGReceived(HWInfo info)
+void MyWebserver::onHWtoSocketMSGReceived(SENDER sender, HWInfo info)
 {
-    messageToSocketReceived(info);
+    if(sender == HARDWARE)
+        emit messageToSocketReceived(sender, info);
+    if(sender == GET)
+    {
+        info.command = "getValue";
+        emit messageToSocketReceived(sender, info);
+    }
 }
 
 void MyWebserver::onSocketToHWMSGReceived(HWInfo info)
 {
     MyDebug::debugprint(LOW, "onSocketToHWMSGReceived value ", QString::number(info.val));
-    emit messageToHWReceived(info);
+    emit messageToHWReceived(HARDWARE, info);
 }
 
+void MyWebserver::onGetValue(QString key)
+{
+    HWInfo tmp;
+    tmp.name = key;
+    emit sigGetValue(GET, tmp);
+}

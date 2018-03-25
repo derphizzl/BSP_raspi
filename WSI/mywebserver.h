@@ -16,16 +16,18 @@ public:
     ~MyWebserver();
     void getVar(QList<WebServerVar *> &);
 
-Q_SIGNALS:
+signals:
     void closed();
-    void messageToHWReceived(const HWInfo msg);
-    void messageToSocketReceived(const HWInfo msg);
+    void messageToHWReceived(SENDER, const HWInfo msg);
+    void messageToSocketReceived(SENDER, const HWInfo msg);
+    void sigGetValue(SENDER, HWInfo);
 
-private Q_SLOTS:
+public slots:
     void onNewConnection();
-    void socketDisconnected(WebServerVar *);    // signal socketDisconnected from WSVar
-    void onHWtoSocketMSGReceived(HWInfo);
-    void onSocketToHWMSGReceived(HWInfo);   // signal valueChanged from WSVar
+    void socketDisconnected(WebServerVar *);
+    void onHWtoSocketMSGReceived(SENDER, HWInfo);
+    void onSocketToHWMSGReceived(HWInfo);
+    void onGetValue(QString key);
 
 private:
     QWebSocketServer *m_pWebSocketServer;
