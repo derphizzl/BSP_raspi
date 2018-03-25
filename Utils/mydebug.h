@@ -10,7 +10,7 @@ class MyDebug
 {
 public:
     MyDebug();
-    static void debugprint(PRIORITY priority, const QString msg);
+    static void debugprint(PRIORITY priority, QString msg, QString value);
     static PRIORITY globalPrio;
     static void setDebugLevel(PRIORITY prio);
 };

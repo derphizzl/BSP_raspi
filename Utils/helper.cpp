@@ -26,28 +26,38 @@ HWInfo Helper::convertJSonObjectToHWInfo(const QJsonObject obj)
     QJsonObject gpio_obj;
     if(obj.contains("name"))
         info.name = obj["name"].toString();
+    qDebug() << "NAME: " << info.name;
+
     if(obj.contains("type")) {
         uint8_t retval;
         HWTYPE rettype;
         retval = Helper::int2HWTYPE(obj["type"].toInt(), rettype);
-        if(retval)
-            info.type = rettype;
+        info.type = rettype;
+
+        qDebug() << "TYPE: " << info.type;
     }
-    if(obj.contains("gpio_info"))
-    {
-        gpio_obj = obj["gpio_info"].toObject();
-        if(gpio_obj.contains("used"))
-        {
-            if(gpio_obj["used"].toInt())
-            {
-                info.gpio_info.used = gpio_obj["used"].toInt();
-                info.gpio_info.port = gpio_obj["port"].toInt();
-                info.gpio_info.direction = gpio_obj["direction"].toString();
-            }
-        }
-    }
+//    if(obj.contains("gpio_info"))
+//    {
+//        qDebug() << "GPIO Info: ";
+//        gpio_obj = obj["gpio_info"].toObject();
+//        if(gpio_obj.contains("used"))
+//        {
+//            qDebug() << "used: " << info.name;
+//            if(gpio_obj["used"].toInt())
+//            {
+//                info.gpio_info.used = gpio_obj["used"].toInt();
+//                info.gpio_info.port = gpio_obj["port"].toInt();
+//                info.gpio_info.direction = gpio_obj["direction"].toString();
+//            }
+//        }
+//    }
+
+    // HERE
     if(obj.contains("value"))
         info.val = obj["value"].toInt();
+
+    qDebug() << "VALUE: " << info.val;
+    qDebug() << "OBJVALUE: " << obj["value"].toString();
 
     return info;
 }

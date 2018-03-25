@@ -16,19 +16,20 @@ MyDebug::MyDebug()
 // HIGH -> wichtig
 // MEDIUM -> semiwichtig
 // LOW -> interessant
-void MyDebug::debugprint(PRIORITY priority, const QString msg)
+void MyDebug::debugprint(PRIORITY priority, QString mymsg, QString value)
 {
     switch(globalPrio) {
     case HIGH:
-        qDebug() << msg;
+        qDebug().noquote() << mymsg << value;
         break;
     case MEDIUM:
         if(priority > LOW)
-            qDebug() << msg;
+            qDebug().noquote() << mymsg << value;
         break;
     case LOW:
         if(priority == HIGH)
-            qDebug() << msg;
+            qDebug().noquote() << mymsg << value;
+        break;
     }
 }
 

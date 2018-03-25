@@ -10,15 +10,15 @@ uint8_t MainWorker::startUp()
     QString dbg_ini_val, port_ini;
     //read ini file
     //debug info
-    if((dbg_ini_val = readINI(QString(INI_FILE_PATH), "debug", "DebugPriority")) == NULL) {
-        qDebug() << "ERROR reading ini file";
+    if((dbg_ini_val = readINI(QString(INI_FILE_PATH), "Debug", "DebugPriority")) == NULL) {
+        qDebug() << "ERROR reading debug information from ini file";
         return 0;
     }
 
     //ws port
-    if((port_ini = readINI(QString(INI_FILE_PATH), "network", "port")) == NULL)
+    if((port_ini = readINI(QString(INI_FILE_PATH), "Network", "Port")) == NULL)
     {
-        qDebug() << "ERROR reading ini file";
+        qDebug() << "ERROR reading network information from ini file";
         return 0;
     }
     m_port = port_ini.toInt();
@@ -38,12 +38,12 @@ uint8_t MainWorker::startUp()
     }
 
     // initialize WebService
-    m_webserver = new MyWebserver((qint16) m_port);
+    m_webserver = new MyWebserver(m_port);
 
     // connections
     QObject::connect(m_hwworker, SIGNAL(valueChanged(HWInfo)), this, SLOT(onHWValChanged(HWInfo)));
     QObject::connect(this, SIGNAL(socketValChanged(HWInfo)), m_hwworker, SLOT(onSocketMSG(HWInfo)));
-    QObject::connect(m_webserver, SIGNAL(valueChanged(HWInfo)), this, SLOT(onSocketValChanged(HWInfo)));
+    QObject::connect(m_webserver, SIGNAL(messageToHWReceived(HWInfo)), this, SLOT(onSocketValChanged(HWInfo)));
     QObject::connect(this, SIGNAL(hardwareValChanged(HWInfo)), m_webserver, SLOT(onHWtoSocketMSGReceived(HWInfo)));
     return 1;
 }
@@ -75,10 +75,12 @@ uint8_t MainWorker::setEnvironment(const uint8_t dbg_val)
 
 void MainWorker::onSocketValChanged(HWInfo info)
 {
+    MyDebug::debugprint(LOW, "onSocketValChanged val", QString::number(info.val));
     emit socketValChanged(info);
 }
 
 void MainWorker::onHWValChanged(HWInfo io)
 {
+    MyDebug::debugprint(LOW, "onHWVChanged val", QString::number(io.val));
     emit hardwareValChanged(io);
 }

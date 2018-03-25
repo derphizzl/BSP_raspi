@@ -3,13 +3,14 @@
 #include "QtWebSockets/qwebsocket.h"
 #include <QtCore/QDebug>
 
-MyWebserver::MyWebserver(quint16 port, QObject *parent) :
+MyWebserver::MyWebserver(uint16_t port, QObject *parent) :
     QObject(parent),
-    m_pWebSocketServer(new QWebSocketServer(QStringLiteral("Echo Server"),
+    m_pWebSocketServer(new QWebSocketServer(QStringLiteral("BSP Server"),
                                             QWebSocketServer::NonSecureMode, this))
 {
+    m_myPort = port;
     if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
-        MyDebug::debugprint(HIGH, "MyWebserver listening on port" + port);
+        MyDebug::debugprint(MEDIUM, "MyWebserver initializing, listening on port ", QString::number(port));
         connect(m_pWebSocketServer, &QWebSocketServer::newConnection,
                 this, &MyWebserver::onNewConnection);
         connect(m_pWebSocketServer, &QWebSocketServer::closed, this, &MyWebserver::closed);
@@ -24,9 +25,9 @@ MyWebserver::~MyWebserver()
 
 void MyWebserver::onNewConnection()
 {
-    WebServerVar* newvar;
+    WebServerVar* newvar = new WebServerVar();
     newvar->setSocket(m_pWebSocketServer->nextPendingConnection());
-    MyDebug::debugprint(MEDIUM, "New connection from " + newvar->getSocket()->peerAddress().toString());
+    MyDebug::debugprint(MEDIUM, "New connection from ", newvar->getSocket()->peerAddress().toString());
     // connect WSV to WS
     connect(newvar, &WebServerVar::socketDisconnected, this, &MyWebserver::socketDisconnected);
     connect(this, SIGNAL(messageToSocketReceived(HWInfo)), newvar, SLOT(onHWMessageReceived(HWInfo)));
@@ -42,7 +43,7 @@ void MyWebserver::socketDisconnected(WebServerVar *sock)
         m_clients.removeAll(pClient);
         pClient->getSocket()->deleteLater();
     }
-    MyDebug::debugprint(MEDIUM, "socketDisconnected:" + pClient->getName());
+    MyDebug::debugprint(MEDIUM, "Socket disconnected:", pClient->getName());
 }
 
 void MyWebserver::onHWtoSocketMSGReceived(HWInfo info)
@@ -52,6 +53,7 @@ void MyWebserver::onHWtoSocketMSGReceived(HWInfo info)
 
 void MyWebserver::onSocketToHWMSGReceived(HWInfo info)
 {
+    MyDebug::debugprint(MEDIUM, "onSocketToHWMSGReceived value ", QString::number(info.val));
     emit messageToHWReceived(info);
 }
 

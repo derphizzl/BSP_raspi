@@ -31,6 +31,7 @@ private:
     QWebSocketServer *m_pWebSocketServer;
     QWebSocket* m_myWebSocket;
     QList<WebServerVar *> m_clients;
+    uint16_t m_myPort;
     bool m_debug;
 };
 

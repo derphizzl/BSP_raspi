@@ -23,12 +23,12 @@ public:
     QWebSocket* getSocket();
 
 signals:
-    void valueChanged(const HWInfo);
+    void valueChanged(HWInfo);
     void socketDisconnected(WebServerVar *);
 
 public slots:
     // send data over socket
-    void onHWMessageReceived(const HWInfo);
+    void onHWMessageReceived(HWInfo);
     void onSocketMessageReceived(QString msg);
     void onSocketDisconnected();
 

@@ -16,7 +16,7 @@ typedef struct HWInfo {
     QString name;
     HWTYPE type;
     GPIOInfo gpio_info;
-    uint8_t val;
+    int val;
 } HWInfo;
 
 typedef enum PRIORITY {

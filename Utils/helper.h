@@ -2,6 +2,7 @@
 #define HELPER_H
 
 #include <QObject>
+#include <QDebug>
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QVariant>
