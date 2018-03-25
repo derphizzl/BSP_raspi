@@ -41,5 +41,5 @@ int main(int argc, char *argv[])
     MainWorker myworker;
     if(myworker.startUp())
         return a.exec();
-    else return -1;
+    else return 0;
 }
