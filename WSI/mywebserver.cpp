@@ -10,7 +10,7 @@ MyWebserver::MyWebserver(uint16_t port, QObject *parent) :
 {
     m_myPort = port;
     if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
-        MyDebug::debugprint(MEDIUM, "MyWebserver initializing, listening on port ", QString::number(port));
+        MyDebug::debugprint(HIGH, "MyWebserver initializing, listening on port ", QString::number(port));
         connect(m_pWebSocketServer, &QWebSocketServer::newConnection,
                 this, &MyWebserver::onNewConnection);
         connect(m_pWebSocketServer, &QWebSocketServer::closed, this, &MyWebserver::closed);
@@ -27,7 +27,7 @@ void MyWebserver::onNewConnection()
 {
     WebServerVar* newvar = new WebServerVar();
     newvar->setSocket(m_pWebSocketServer->nextPendingConnection());
-    MyDebug::debugprint(MEDIUM, "New connection from ", newvar->getSocket()->peerAddress().toString());
+    MyDebug::debugprint(HIGH, "New connection from ", newvar->getSocket()->peerAddress().toString());
     // connect WSV to WS
     connect(newvar, &WebServerVar::socketDisconnected, this, &MyWebserver::socketDisconnected);
     connect(this, SIGNAL(messageToSocketReceived(HWInfo)), newvar, SLOT(onHWMessageReceived(HWInfo)));
