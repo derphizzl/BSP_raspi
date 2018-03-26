@@ -23,7 +23,6 @@ SOURCES += main.cpp \
     mainworker.cpp \
     Utils/mydebug.cpp \
     HW/hwworker.cpp \
-    HW/buttonpress.cpp \
     Utils/helper.cpp
 
 HEADERS += \
@@ -35,6 +34,5 @@ HEADERS += \
     Utils/mydebug.h \
     HW/hwconf.h \
     Utils/types.h \
-    HW/buttonpress.h \
     Utils/helper.h \
     HW/hwworker.h

@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include "mainworker.h"
 
-#define BSP_VERSION "0.0.1"
+#define BSP_VERSION "0.0.2"
 
 void ignoreUnixSignals(std::initializer_list<int> ignoreSignals) {
     // all these signals will be ignored.

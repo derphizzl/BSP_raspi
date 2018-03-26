@@ -28,11 +28,11 @@ private:
     void checkAttachedHW();
 
 public slots:
-    void onValueChanged(SENDER, HWInfo);
-    void onSocketMSG(SENDER, HWInfo);
+    void onValueChanged(SENDER, Info);
+    void onSocketMSG(SENDER, Info);
 
 signals:
-    void valueChanged(SENDER, HWInfo);
+    void valueChanged(SENDER, Info);
 
 };
 

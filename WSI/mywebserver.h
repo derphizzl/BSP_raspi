@@ -14,26 +14,31 @@ class MyWebserver : public QObject
 public:
     explicit MyWebserver(quint16 port, QObject *parent = Q_NULLPTR);
     ~MyWebserver();
-    void getVar(QList<WebServerVar *> &);
+    void getVar(QVector<WebServerVar *> &);
 
 signals:
     void closed();
-    void messageToHWReceived(SENDER, const HWInfo msg);
-    void messageToSocketReceived(SENDER, const HWInfo msg);
-    void sigGetValue(SENDER, HWInfo);
+    void messageToHWReceived(SENDER, const Info msg);
+    void messageToSocketReceived(SENDER, const Info msg);
+    void sigGetValue(SENDER, Info);
+    void loginDone(const bool);
 
 public slots:
     void onNewConnection();
     void socketDisconnected(WebServerVar *);
-    void onHWtoSocketMSGReceived(SENDER, HWInfo);
-    void onSocketToHWMSGReceived(HWInfo);
+    void onHWtoSocketMSGReceived(SENDER, Info);
+    void onSocketToHWMSGReceived(Info);
     void onGetValue(QString key);
+    void onLogin(Info);
 
 private:
+    bool checkIfIPConnected(const QString);
     QWebSocketServer *m_pWebSocketServer;
     QWebSocket* m_myWebSocket;
-    QList<WebServerVar *> m_clients;
+    QVector<WebServerVar *> m_clients;
+    QVector<QString> m_ipaddrVec;
     uint16_t m_myPort;
+    QString m_tmpIP;
     bool m_debug;
 };
 

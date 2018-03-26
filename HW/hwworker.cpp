@@ -48,8 +48,8 @@ uint8_t HWWorker::initGPIO()
         {
             GPIO* tmpgpio = new GPIO();
             // initialize GPIOs, attach to signal and push them into m_gpios
-            if(tmpgpio->initGPIO(attachedHW[i].name, attachedHW[i].gpio_info.port, attachedHW[i].gpio_info.direction, attachedHW[i].val)) {
-                QObject::connect(tmpgpio, SIGNAL(valueChanged(SENDER, HWInfo)), this, SLOT(onValueChanged(SENDER, HWInfo)));
+            if(tmpgpio->initGPIO(attachedHW[i].name, attachedHW[i].info.arg2, attachedHW[i].info.arg3, attachedHW[i].val)) {
+                QObject::connect(tmpgpio, SIGNAL(valueChanged(SENDER, Info)), this, SLOT(onValueChanged(SENDER, Info)));
                 m_gpios.push_back(tmpgpio);
             }
             else
@@ -79,12 +79,12 @@ uint8_t HWWorker::closeGPIO()
     return 1;
 }
 
-void HWWorker::onValueChanged(SENDER sender, HWInfo info)
+void HWWorker::onValueChanged(SENDER sender, Info info)
 {
     emit valueChanged(sender, info);
 }
 
-void HWWorker::onSocketMSG(SENDER sender, HWInfo info)
+void HWWorker::onSocketMSG(SENDER sender, Info info)
 {
     Q_UNUSED( sender )
     if(sender == SOCKET)

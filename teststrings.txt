@@ -1,0 +1,18 @@
+For socket communication:
+
+/*  HWType  */
+	HW_NONE = 0
+	HW_GPIO = 1
+
+
+//setValue -> name must match entry in hwconf.h 
+{"name":"GPIO4","command":"setValue","type":1,"info":{"arg1":1,"arg2":4,"arg3":"out","arg4":""},"value":1}
+
+//getValue -> name must match entry in hwconf.h
+{"name":"GPIO4","command":"getValue","type":0,"info":{"arg1":0,"arg2":0,"arg3":"","arg4":""},"value":0}
+
+//add -> name must match entry in hwconf.h
+ {"name":"GPIO4","command":"add","type":0,"info":{"arg1":0,"arg2":0,"arg3":"","arg4":""},"value":0}
+
+// login
+{"name":"","command":"login","type":0,"info":{"arg1":0,"arg2":0,"arg3":"testname","arg4":"testpasswd"},"value":0}

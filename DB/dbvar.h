@@ -15,19 +15,19 @@ class DBVar : public QObject
 public:
     DBVar();
     ~DBVar();
-    HWInfo getValue(const QString key);
+    Info getValue(const QString key);
 
 private:
-    QVector<HWInfo*> m_mydb;
+    QVector<Info*> m_mydb;
     void initDB();
     void closeDB();
     void setValue(const QString key, const int value);
 
 public slots:
-    void onGetData(SENDER, const HWInfo info);
+    void onGetData(SENDER, const Info info);
 
 signals:
-    void sigGotValue(SENDER, const HWInfo);
+    void sigGotValue(SENDER, const Info);
 
 };
 

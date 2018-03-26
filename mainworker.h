@@ -37,17 +37,17 @@ private:
     void doConnect();
 signals:
     //HW needs to attach
-    void socketValChanged(SENDER, HWInfo);
+    void socketValChanged(SENDER, Info);
     //WS needs to attach
-    void hardwareValChanged(SENDER, HWInfo);
+    void hardwareValChanged(SENDER, Info);
 public slots:
     // from socket signal
-    void onSocketValChanged(SENDER, HWInfo);
+    void onSocketValChanged(SENDER, Info);
     // from hardware singal valueChanged()
-    void onHWValChanged(SENDER sender, HWInfo);
+    void onHWValChanged(SENDER sender, Info);
 
-    void onDBValFromHWChanged(HWInfo info);
-    void onDBValFromSocketChanged(HWInfo info);
+    void onDBValFromHWChanged(Info info);
+    void onDBValFromSocketChanged(Info info);
 };
 
 #endif // MAINWORKER_H

@@ -8,17 +8,27 @@
 #include <QVariant>
 #include <QSettings>
 #include "types.h"
+#include "mydebug.h"
 
 class Helper
 {
 public:
     Helper();
-    static QJsonObject convertHWInfoToQJsonObject(const HWInfo);
-    static HWInfo convertJSonObjectToHWInfo(const QJsonObject);
+    static QJsonObject convertInfoToQJsonObject(const Info);
+    static Info convertJSonObjectToInfo(const QJsonObject);
     static QJsonObject convertStringToJSonObject(const QString);
     static QString convertJSonObjectToQString(const QJsonObject);
+    static QString convertInfoToString(const Info);
     static uint8_t int2HWTYPE(const int, HWTYPE&);
     static QString readINI(const QString path, const QString group, const QString &key);
+    static void setUsername(QString);
+    static void setPassword(QString);
+    static void getUsername(QString&);
+    static void getPassword(QString&);
+
+private:
+    static QString m_username;
+    static QString m_passwd;
 };
 
 #endif // HELPER_H

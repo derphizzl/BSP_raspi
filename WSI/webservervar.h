@@ -15,34 +15,41 @@ class WebServerVar : public QObject
 
 public:
     WebServerVar();
-    void initVar(const HWInfo);
-    void setValue(const SENDER, HWInfo);
+    void initVar(const Info);
+    void setValue(const SENDER, Info);
     void getValue(uint32_t& value);
     QString getName();
     void setSocket(QWebSocket *socket);
     QWebSocket* getSocket();
+    void setIP(const QString);
+    QString getIP();
+    bool getLoginState();
+    void setLoginState(const bool);
 
 signals:
-    void valueChanged(HWInfo);
+    void valueChanged(Info);
     void socketDisconnected(WebServerVar *);
     void sigGetValue(QString key);
+    void login(Info);
 
 public slots:
     // send data over socket
-    void onHWMessageReceived(SENDER,HWInfo);
+    void onHWMessageReceived(SENDER,Info);
     void onSocketMessageReceived(QString msg);
     void onSocketDisconnected();
+    void onLoginStateChanged(const bool);
 
 private:
     QWebSocket* m_mySocket;
+    QString m_myIP;
     void socketsend(const QString msg);
     int checkForTarget();
     uint8_t checkCommand();
 
     QJsonObject m_myJObject;
-    HWInfo m_myInfo;
+    Info m_myInfo;
     QJsonObject m_jsonIn;
-    HWInfo m_infoIn;
+    Info m_infoIn;
     QString m_myName;
     HWTYPE m_myType;
     int m_myPort;
@@ -54,6 +61,8 @@ private:
 
     uint8_t convertInfoToJSON();
     uint8_t convertJSONToInfo();
+
+    bool m_isLoginDone;
 };
 
 #endif // WEBSERVERVAR_H

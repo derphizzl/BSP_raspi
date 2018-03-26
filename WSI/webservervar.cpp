@@ -1,25 +1,22 @@
 #include "webservervar.h"
 
-WebServerVar::WebServerVar()
+WebServerVar::WebServerVar() :
+    m_isLoginDone(false)
 {
 
 }
 
-void WebServerVar::initVar(const HWInfo info)
+void WebServerVar::initVar(const Info info)
 {
     m_myName = info.name;
-    m_myType = info.type;
-    m_myPort = info.gpio_info.port;
-    m_myDirection = info.gpio_info.direction;
-    m_myValue = info.val;
     m_myInfo = info;
 }
 
-void WebServerVar::setValue(const SENDER sender, HWInfo val)
+void WebServerVar::setValue(const SENDER sender, Info val)
 {
     QJsonObject jo;
     QString msg;
-    QString strGet = "getValue";
+    //QString strGet = "GET";
     //is this msg for me?
     MyDebug::debugprint(LOW, "In setValue, is msg for me? ", QString::number(val.name.compare(m_myName)));
     MyDebug::debugprint(LOW, "InfoName ", val.name);
@@ -33,7 +30,7 @@ void WebServerVar::setValue(const SENDER sender, HWInfo val)
             // socketSend
             m_myValue = val.val;
             MyDebug::debugprint(LOW, "HW sending data to socket ", QString::number(val.val));
-            jo = Helper::convertHWInfoToQJsonObject(val);
+            jo = Helper::convertInfoToQJsonObject(val);
             msg = Helper::convertJSonObjectToQString(jo);
             socketsend(msg);
             break;
@@ -45,7 +42,7 @@ void WebServerVar::setValue(const SENDER sender, HWInfo val)
             // socketSend
             m_myValue = val.val;
             MyDebug::debugprint(LOW, "HW sending data to socket on GET", QString::number(val.val));
-            jo = Helper::convertHWInfoToQJsonObject(val);
+            jo = Helper::convertInfoToQJsonObject(val);
             msg = Helper::convertJSonObjectToQString(jo);
             socketsend(msg);
             break;
@@ -78,7 +75,22 @@ QWebSocket *WebServerVar::getSocket()
     return this->m_mySocket;
 }
 
-void WebServerVar::onHWMessageReceived(SENDER sender, HWInfo info)
+void WebServerVar::setIP(const QString ip)
+{
+    this->m_myIP = ip;
+}
+
+QString WebServerVar::getIP()
+{
+    return this->m_myIP;
+}
+
+bool WebServerVar::getLoginState()
+{
+    return this->m_isLoginDone;
+}
+
+void WebServerVar::onHWMessageReceived(SENDER sender, Info info)
 {
     setValue(sender, info);
 }
@@ -95,18 +107,42 @@ void WebServerVar::onSocketDisconnected()
     emit socketDisconnected(this);
 }
 
+void WebServerVar::onLoginStateChanged(const bool state)
+{
+    setLoginState(state);
+    if(state) {
+        Info inf = {"", "LOGINOK", HW_NONE, {0, 0, "", ""}, 0};
+        socketsend(Helper::convertInfoToString(inf));
+    }
+}
+
+void WebServerVar::setLoginState(const bool state)
+{
+    if(!state)
+    {
+        Info inf = {"", "ELOGIN", HW_NONE, {0, 0, "", ""}, 0};
+        socketsend(Helper::convertInfoToString(inf));
+    }
+    this->m_isLoginDone = state;
+}
+
 int WebServerVar::checkForTarget()
 {
     QJsonObject obj_inf = Helper::convertStringToJSonObject(m_messageIn);
-    HWInfo hw_inf = Helper::convertJSonObjectToHWInfo(obj_inf);
-    if(hw_inf.name.compare(m_myName) == 0)
+    Info hw_inf = Helper::convertJSonObjectToInfo(obj_inf);
+    int retval = 1;
+    MyDebug::debugprint(LOW, "my name check:", m_myName);
+    if(hw_inf.name.compare(m_myName) == 0)  // add not for me, get/set ok
     {
-        return 0;
+        retval = 0;
     }
-    if(hw_inf.name == NULL)
-        return -2;
-    else            //name not set yet
-        return -1;
+    else if(hw_inf.name == NULL)            // error: could not initialize object members
+        retval = -1;
+    else                                    // add me
+        retval = -2;
+
+    MyDebug::debugprint(LOW, "checkForTarget returns ", QString::number(retval));
+    return retval;
 }
 
 void WebServerVar::socketsend(const QString msg)
@@ -117,40 +153,57 @@ void WebServerVar::socketsend(const QString msg)
 uint8_t WebServerVar::checkCommand()
 {
     QJsonObject jo_command = Helper::convertStringToJSonObject(m_messageIn);
+    Info tmpinf = Helper::convertJSonObjectToInfo(jo_command);
     MyDebug::debugprint(LOW, "jo_command value ", jo_command["value"].toString() );
     QString str_command = NULL;
-    m_myInfo = Helper::convertJSonObjectToHWInfo(jo_command);
+    m_myInfo = Helper::convertJSonObjectToInfo(jo_command);
     if(jo_command.contains("command"))
     {
         str_command = jo_command["command"].toString();
         MyDebug::debugprint(LOW, "Json command:", str_command);
     }
-    if(str_command != NULL)
+    else
+    {
+        MyDebug::debugprint(LOW, "ERROR no command in received json", str_command);
+        return 1;
+    }
+
+    if(str_command.compare("login") == 0)
+    {
+        //do first login for name
+        if(!m_isLoginDone)
+        {
+            MyDebug::debugprint(LOW, "Emitting login to WS", "");
+            emit login(tmpinf);
+            return 0;
+        }
+        else
+        {
+            Info inf = {"", "LOGGEDIN", HW_NONE, {0, 0, "", ""}, 0};
+            socketsend(Helper::convertInfoToString(inf));
+        }
+    }
+
+    if(m_isLoginDone)
     {
         if(str_command.compare("add") == 0)
         {
-            MyDebug::debugprint(LOW, "In Json add:", str_command);
+            MyDebug::debugprint(LOW, "In case add:", str_command);
             int checkVal = checkForTarget();
-            HWInfo tmpinf;
+            Info tmpinf;
             QJsonObject tmpobj;
-            MyDebug::debugprint(LOW, "checkForTarget returns ", QString::number(checkVal));
+
             //initialize Object, connect socket signals/slots and connect to HW signals/slots
             switch(checkVal)
             {
             case -2:                //object not initialized yet
-                tmpobj = Helper::convertStringToJSonObject(m_messageIn);
-                tmpinf = Helper::convertJSonObjectToHWInfo(tmpobj);
-                tmpinf.val = 1;
-                tmpinf.command = "add";
-                initVar(tmpinf);
-                break;
             case -1:                //a
                 tmpobj = Helper::convertStringToJSonObject(m_messageIn);
-                tmpinf = Helper::convertJSonObjectToHWInfo(tmpobj);
+                tmpinf = Helper::convertJSonObjectToInfo(tmpobj);
                 tmpinf.val = 1;
                 initVar(tmpinf);
-                tmpinf.command = "add";
-                socketsend(Helper::convertJSonObjectToQString(Helper::convertHWInfoToQJsonObject(tmpinf)));
+                tmpinf.command = "ADDOK";
+                socketsend(Helper::convertJSonObjectToQString(Helper::convertInfoToQJsonObject(tmpinf)));
                 break;
             default:                //message is for me, but allready added
                 break;
@@ -164,35 +217,35 @@ uint8_t WebServerVar::checkCommand()
         else if(str_command.compare("setValue") == 0)
         {
             //setValue to HW
-            HWInfo tmpinf = Helper::convertJSonObjectToHWInfo(jo_command);
-            MyDebug::debugprint(LOW, "In Json setValue:", QString::number((int)tmpinf.val));
-
-            if(checkForTarget() < 0)
-            {
-                tmpinf.command = "ENOADD";
-                socketsend(Helper::convertJSonObjectToQString(Helper::convertHWInfoToQJsonObject(tmpinf)));
-            }
-            else
+            MyDebug::debugprint(LOW, "In case setValue:", QString::number((int)tmpinf.val));
+            if(checkForTarget() == 0)
             {
                 setValue(SOCKET, tmpinf);
+            }else
+            {
+                MyDebug::debugprint(LOW, "setVlue not for me: ", m_myName);
             }
         }
         else if(str_command.compare("getValue") == 0)
         {
-            MyDebug::debugprint(LOW, "In getValue", "");
+            MyDebug::debugprint(LOW, "In case getValue", "");
             if(checkForTarget() == 0)
             {
-                QString tmpname = Helper::convertJSonObjectToHWInfo(jo_command).name;
+                QString tmpname = Helper::convertJSonObjectToInfo(jo_command).name;
                 emit sigGetValue(tmpname);
             }
             else
             {
-                HWInfo tmpinf = Helper::convertJSonObjectToHWInfo(jo_command);
                 tmpinf.command = "ENOADD";
-                socketsend(Helper::convertJSonObjectToQString(Helper::convertHWInfoToQJsonObject(tmpinf)));
+                socketsend(Helper::convertInfoToString(tmpinf));
             }
         }
         return 1;
+    }
+    else
+    {
+        tmpinf.command = "ENOLOGIN";
+        socketsend(Helper::convertJSonObjectToQString(Helper::convertInfoToQJsonObject(tmpinf)));
     }
     return 0;
 }

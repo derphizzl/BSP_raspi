@@ -1,53 +1,45 @@
 #include "helper.h"
 
+QString Helper::m_passwd = NULL;
+QString Helper::m_username = NULL;
+
 Helper::Helper()
 {
 
 }
 
-QJsonObject Helper::convertHWInfoToQJsonObject(const HWInfo info)
+QJsonObject Helper::convertInfoToQJsonObject(const Info info)
 {
-    QJsonObject myJObject, myGPIOObj;
+    QJsonObject myJObject, myInfoObj;
     myJObject.insert("name", QJsonValue::fromVariant(QVariant(info.name)));
     myJObject.insert("command", QJsonValue::fromVariant(QVariant(info.command)));
     myJObject.insert("type", QJsonValue::fromVariant(QVariant(info.type)));
     myJObject.insert("value", QJsonValue::fromVariant(QVariant(info.val)));
-    myGPIOObj.insert("used",  QJsonValue::fromVariant(QVariant(info.gpio_info.used)));
-    myGPIOObj.insert("port",  QJsonValue::fromVariant(QVariant(info.gpio_info.port)));
-    myGPIOObj.insert("direction",  QJsonValue::fromVariant(QVariant(info.gpio_info.direction)));
-    myJObject.insert("gpio_info", myGPIOObj);
+    myInfoObj.insert("arg1",  QJsonValue::fromVariant(QVariant(info.info.arg1)));
+    myInfoObj.insert("arg2",  QJsonValue::fromVariant(QVariant(info.info.arg2)));
+    myInfoObj.insert("arg3",  QJsonValue::fromVariant(QVariant(info.info.arg3)));
+    myInfoObj.insert("arg4",  QJsonValue::fromVariant(QVariant(info.info.arg4)));
+    myJObject.insert("info", myInfoObj);
 
     return myJObject;
 }
 
-HWInfo Helper::convertJSonObjectToHWInfo(const QJsonObject obj)
+Info Helper::convertJSonObjectToInfo(const QJsonObject obj)
 {
-    HWInfo info;
-    QJsonObject gpio_obj;
-    if(obj.contains("name"))
-        info.name = obj["name"].toString();
+    Info info;
+    QJsonObject my_obj;
+    info.name = obj["name"].toString();
+    info.command = obj["command"].toString();
 
-    if(obj.contains("command"))
-    {
-        info.command = obj["type"].toString();
-    }
+    HWTYPE rettype;
+    if(Helper::int2HWTYPE(obj["type"].toInt(), rettype))
+        info.type = rettype;
 
-    if(obj.contains("type"))
-    {
-        HWTYPE rettype;
-        if(Helper::int2HWTYPE(obj["type"].toInt(), rettype))
-            info.type = rettype;
-    }
-    if(obj.contains("gpio_info"))
-    {
-        gpio_obj = obj["gpio_info"].toObject();
-        if(gpio_obj.contains("used"))
-        {
-            info.gpio_info.used = gpio_obj["used"].toInt();
-            info.gpio_info.port = gpio_obj["port"].toInt();
-            info.gpio_info.direction = gpio_obj["direction"].toString();
-        }
-    }
+    my_obj = obj["info"].toObject();
+    info.info.arg1 = my_obj["arg1"].toInt();
+    info.info.arg2 = my_obj["arg2"].toInt();
+    info.info.arg3 = my_obj["arg3"].toString();
+    info.info.arg4 = my_obj["arg4"].toString();
 
     QJsonValue jval = obj["value"];
     info.val = jval == QJsonValue::Undefined ? -1 : jval.toInt();
@@ -71,11 +63,19 @@ QString Helper::convertJSonObjectToQString(const QJsonObject obj)
     return mystringify;
 }
 
+QString Helper::convertInfoToString(const Info info)
+{
+    return convertJSonObjectToQString(convertInfoToQJsonObject(info));
+}
+
 uint8_t Helper::int2HWTYPE(const int type, HWTYPE& hwtype)
 {
     switch(type)
     {
     case 0:
+        hwtype = HW_NONE;
+        return 1;
+    case 1:
         hwtype = HW_GPIO;
         return 1;
     default:
@@ -100,4 +100,24 @@ QString Helper::readINI(const QString path, const QString group, const QString &
     settings.endGroup();
 
     return retval;
+}
+
+void Helper::setUsername(const QString uname)
+{
+    m_username = m_username == NULL ? uname : m_username;
+}
+
+void Helper::setPassword(const QString passwd)
+{
+    m_passwd = m_passwd == NULL ? passwd : m_passwd;
+}
+
+void Helper::getUsername(QString & uname)
+{
+    uname = m_username;
+}
+
+void Helper::getPassword(QString & passwd )
+{
+    passwd = m_passwd;
 }

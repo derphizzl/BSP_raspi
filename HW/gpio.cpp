@@ -60,7 +60,7 @@ void GPIO::onValueChanged()
     MyDebug::debugprint(LOW, "GPIO value changed", "");
     uint8_t myval;
     getValue(myval);
-    HWInfo tmp = {this->m_name, m_command, HW_GPIO, {1, m_port.toInt(), m_direction}, myval};
+    Info tmp = {this->m_name, m_command, HW_GPIO, {1, m_port.toInt(), m_direction, ""}, myval};
     emit valueChanged(HARDWARE, tmp);
 }
 

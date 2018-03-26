@@ -11,9 +11,9 @@ DBVar::~DBVar()
     closeDB();
 }
 
-HWInfo DBVar::getValue(const QString key)
+Info DBVar::getValue(const QString key)
 {
-    QVector<HWInfo*>::iterator it = m_mydb.begin(), end = m_mydb.end();
+    QVector<Info*>::iterator it = m_mydb.begin(), end = m_mydb.end();
     for(; it != end; ++it)
     {
         if((*it)->name.compare(key) == 0)
@@ -21,7 +21,7 @@ HWInfo DBVar::getValue(const QString key)
             return **it;
         }
     }
-    HWInfo voidy = {"", "", HW_GPIO, {1, 4, ""}, 0};
+    Info voidy = {"", "", HW_GPIO, {1, 4, "", ""}, 0};
     return voidy;
 }
 
@@ -29,7 +29,7 @@ void DBVar::initDB()
 {
     for(uint i = 0; i < HWNUM; i++)
     {
-        HWInfo* pInf = new HWInfo;
+        Info* pInf = new Info;
         *pInf = attachedHW[i];
         m_mydb.push_back(pInf);
     }
@@ -37,7 +37,7 @@ void DBVar::initDB()
 
 void DBVar::closeDB()
 {
-    QVector<HWInfo*>::iterator it = m_mydb.begin(), end = m_mydb.end();
+    QVector<Info*>::iterator it = m_mydb.begin(), end = m_mydb.end();
     for(; it != end; ++it)
     {
         delete *it;
@@ -48,7 +48,7 @@ void DBVar::closeDB()
 
 void DBVar::setValue(const QString key, const int value)
 {
-    QVector<HWInfo*>::iterator it = m_mydb.begin(), end = m_mydb.end();
+    QVector<Info*>::iterator it = m_mydb.begin(), end = m_mydb.end();
     for(; it != end; ++it)
     {
         if((*it)->name.compare(key) == 0)
@@ -58,7 +58,7 @@ void DBVar::setValue(const QString key, const int value)
     }
 }
 
-void DBVar::onGetData(SENDER sender, HWInfo info)
+void DBVar::onGetData(SENDER sender, Info info)
 {
     switch(sender)
     {
