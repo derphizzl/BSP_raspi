@@ -1,7 +1,0 @@
-WebSocket:
-
-{"name":"GPIO4","command":"getValue","type":"HW_GPIO","gpio_info":{"used":1,"port":4,"direction":"out"},"value":0}
-
-
-// commands: add, getValue, setValue
-// Missing: remove

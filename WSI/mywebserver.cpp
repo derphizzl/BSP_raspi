@@ -48,7 +48,9 @@ void MyWebserver::onNewConnection()
 void MyWebserver::socketDisconnected(WebServerVar *sock)
 {
     WebServerVar *pClient = sock;
+
     if (pClient) {
+        m_ipaddrVec.removeAll(pClient->getIP());
         pClient->getSocket()->deleteLater();
         m_clients.removeAll(pClient);
     }
