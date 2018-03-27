@@ -31,6 +31,7 @@ void DBVar::initDB()
     {
         Info* pInf = new Info;
         *pInf = attachedHW[i];
+         MyDebug::debugprint(LOW, "In DB init(): ", Helper::convertJSonObjectToQString( Helper::convertInfoToQJsonObject(*pInf) ));
         m_mydb.push_back(pInf);
     }
 }
@@ -53,6 +54,7 @@ void DBVar::setValue(const QString key, const int value)
     {
         if((*it)->name.compare(key) == 0)
         {
+             MyDebug::debugprint(LOW, "In DB setValue(): ", QString::number(value));
             (*it)->val = value;
         }
     }
@@ -60,6 +62,7 @@ void DBVar::setValue(const QString key, const int value)
 
 void DBVar::onGetData(SENDER sender, Info info)
 {
+    MyDebug::debugprint(LOW, "In DB onGetData() sender: ", QString::number(sender));
     switch(sender)
     {
     case HARDWARE:

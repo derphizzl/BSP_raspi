@@ -86,11 +86,11 @@ void HWWorker::onValueChanged(SENDER sender, Info info)
 
 void HWWorker::onSocketMSG(SENDER sender, Info info)
 {
-    Q_UNUSED( sender )
+    MyDebug::debugprint(LOW, "In HWWorker onSocketMsg(): SENDER: ", QString::number(sender));
     if(sender == SOCKET)
     {
         //change gpio val
-        MyDebug::debugprint(LOW, "onSocketMsg: infotype: ", QString::number(info.type));
+        MyDebug::debugprint(LOW, "In HWWorker onSocketMsg(): infotype: ", QString::number(info.type));
         switch(info.type)
         {
         case HW_GPIO:
@@ -98,7 +98,7 @@ void HWWorker::onSocketMSG(SENDER sender, Info info)
             {
                 if(m_gpios.at(i)->getName().compare(info.name) == 0)
                 {
-                    MyDebug::debugprint(LOW, "Matched name in socketMSG: value ", QString::number(info.val));
+                    MyDebug::debugprint(LOW, "In HWWorker onSocketMsg(): Matched name: value ", QString::number(info.val));
                     m_gpios.at(i)->setValue(info.val);
                     break;
                 }

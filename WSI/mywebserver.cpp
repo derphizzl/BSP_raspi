@@ -6,7 +6,8 @@
 MyWebserver::MyWebserver(uint16_t port, QObject *parent) :
     QObject(parent),
     m_pWebSocketServer(new QWebSocketServer(QStringLiteral("BSP Server"),
-                                            QWebSocketServer::NonSecureMode, this))
+                                            QWebSocketServer::NonSecureMode, this)),
+    m_isShuttingDown(false)
 {
     m_myPort = port;
     if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
@@ -19,15 +20,19 @@ MyWebserver::MyWebserver(uint16_t port, QObject *parent) :
 
 MyWebserver::~MyWebserver()
 {
+    MyDebug::debugprint(HIGH, "Shutting down WebServer with # connected clients: ", QString::number(m_clients.length()));
+    m_isShuttingDown = true;
     m_pWebSocketServer->close();
     qDeleteAll(m_clients.begin(), m_clients.end());
+    MyDebug::debugprint(HIGH, "Done.", "");
+
 }
 
 void MyWebserver::onNewConnection()
 {
     WebServerVar* newvar = new WebServerVar();
     newvar->setSocket(m_pWebSocketServer->nextPendingConnection());
-    MyDebug::debugprint(HIGH, "New connection from ", newvar->getSocket()->peerAddress().toString());
+    MyDebug::debugprint(HIGH, "In WS New connection from ", newvar->getSocket()->peerAddress().toString());
     m_tmpIP = newvar->getSocket()->peerAddress().toString();
     newvar->setIP(m_tmpIP);
 
@@ -38,10 +43,16 @@ void MyWebserver::onNewConnection()
     connect(newvar, SIGNAL(sigGetValue(QString)), this, SLOT(onGetValue(QString)));
     if(!checkIfIPConnected(m_tmpIP))
     {
+        MyDebug::debugprint(LOW, "In WS IP not authenticated", "");
         connect(newvar, SIGNAL(login(Info)), this, SLOT(onLogin(Info)));
         connect(this, SIGNAL(loginDone(bool)), newvar, SLOT(onLoginStateChanged(bool)));
     }
-    else newvar->setLoginState(true);
+    else
+    {
+        MyDebug::debugprint(LOW, "In WS IP allready authenticated", "");
+        newvar->setLoginState(true);
+    }
+
     m_clients.push_back(newvar);
 }
 
@@ -50,15 +61,28 @@ void MyWebserver::socketDisconnected(WebServerVar *sock)
     WebServerVar *pClient = sock;
 
     if (pClient) {
-        m_ipaddrVec.removeAll(pClient->getIP());
-        pClient->getSocket()->deleteLater();
-        m_clients.removeAll(pClient);
+        if(m_ipaddrVec.contains(pClient->getIP()))
+        {
+            m_ipaddrVec.removeOne(pClient->getIP());
+            MyDebug::debugprint(LOW, "In WS onDisconnected IP Adress deleted", "");
+        }
+        if(m_clients.contains(pClient))
+        {
+            MyDebug::debugprint(LOW, "In WS onDisconnected client deleted", "");
+            //m_clients.at(m_clients.indexOf(pClient))->~WebServerVar();
+            if(!m_isShuttingDown)
+                m_clients.remove(m_clients.indexOf(pClient));
+        }
+        MyDebug::debugprint(LOW, "In WS client deleted length ", QString::number(m_clients.length()));
+        MyDebug::debugprint(LOW, "In WS client deleted", QString::number(m_clients.removeOne(pClient)));
+        MyDebug::debugprint(LOW, "In WS client deleted new length ", QString::number(m_clients.length()));
     }
     MyDebug::debugprint(MEDIUM, "Socket disconnected:", pClient->getName());
 }
 
 void MyWebserver::onHWtoSocketMSGReceived(SENDER sender, Info info)
 {
+    MyDebug::debugprint(LOW, "In WS onHW2SocketMSG(): SENDER: ", QString::number(sender));
     if(sender == HARDWARE)
     {
         info.command = "HWINF";
@@ -74,7 +98,7 @@ void MyWebserver::onHWtoSocketMSGReceived(SENDER sender, Info info)
 void MyWebserver::onSocketToHWMSGReceived(Info info)
 {
     MyDebug::debugprint(LOW, "onSocketToHWMSGReceived value ", QString::number(info.val));
-    emit messageToHWReceived(HARDWARE, info);
+    emit messageToHWReceived(SOCKET, info);
 }
 
 void MyWebserver::onGetValue(QString key)
@@ -91,12 +115,12 @@ void MyWebserver::onLogin(Info msg)
     Helper::getPassword(passwd);
     if(msg.info.arg3.compare(uname) == 0 && msg.info.arg4.compare(passwd) == 0)
     {
-        MyDebug::debugprint(LOW, "Emitting loginDone to Var", "");
+        MyDebug::debugprint(LOW, "In WS onLogin() Emitting loginDone to Var", "");
         emit loginDone(true);
     }
     else
     {
-        MyDebug::debugprint(LOW, "Emitting login false to Var", "");
+        MyDebug::debugprint(LOW, "In WS onLogin() Emitting login false to Var", "");
         emit loginDone(false);
     }
 }
@@ -104,18 +128,22 @@ void MyWebserver::onLogin(Info msg)
 bool MyWebserver::checkIfIPConnected(const QString ip)
 {
     QVector<WebServerVar *>::iterator it = m_clients.begin(), end = m_clients.end();
+    if(m_clients.size() < 1)
+    {
+        MyDebug::debugprint(LOW, "In WS checkIfIPConnected() IP not connected", "");
+        return false;
+    }
     for(;it != end;++it)
     {
         if((*it)->getIP().compare(ip) == 0)
         {
             if((*it)->getLoginState())
             {
-                MyDebug::debugprint(LOW, "IP connected", "");
+                MyDebug::debugprint(LOW, "In WS checkIfIPConnected() IP connected", "");
                 return true;
             }
         }
     }
-    MyDebug::debugprint(LOW, "IP not connected", "");
+    MyDebug::debugprint(LOW, "In WS checkIfIPConnected() IP not connected", "");
     return false;
-
 }

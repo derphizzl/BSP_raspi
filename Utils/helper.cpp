@@ -24,13 +24,13 @@ QJsonObject Helper::convertInfoToQJsonObject(const Info info)
     return myJObject;
 }
 
-Info Helper::convertJSonObjectToInfo(const QJsonObject obj)
+Info Helper::convertJSonObjectToInfo(QJsonObject obj)
 {
     Info info;
     QJsonObject my_obj;
+    info.val = obj["value"].toInt();
     info.name = obj["name"].toString();
     info.command = obj["command"].toString();
-
     HWTYPE rettype;
     if(Helper::int2HWTYPE(obj["type"].toInt(), rettype))
         info.type = rettype;
@@ -41,9 +41,6 @@ Info Helper::convertJSonObjectToInfo(const QJsonObject obj)
     info.info.arg3 = my_obj["arg3"].toString();
     info.info.arg4 = my_obj["arg4"].toString();
 
-    QJsonValue jval = obj["value"];
-    info.val = jval == QJsonValue::Undefined ? -1 : jval.toInt();
-
     return info;
 }
 
@@ -51,6 +48,10 @@ QJsonObject Helper::convertStringToJSonObject(const QString str)
 {
     QJsonDocument myresp = QJsonDocument::fromJson(str.toUtf8());
     QJsonObject myjobj = myresp.object();
+    if(myjobj.value("value") == QJsonValue::Undefined)
+        MyDebug::debugprint(LOW, "convertString toJSON: Value is undefined", "");
+    else
+        MyDebug::debugprint(LOW, "convertString toJSON: Value is defined", QString::number(myjobj["value"].toInt()));
 
     return myjobj;
 }

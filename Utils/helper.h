@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include "QJsonValue"
 #include <QVariant>
 #include <QSettings>
 #include "types.h"
@@ -15,7 +16,7 @@ class Helper
 public:
     Helper();
     static QJsonObject convertInfoToQJsonObject(const Info);
-    static Info convertJSonObjectToInfo(const QJsonObject);
+    static Info convertJSonObjectToInfo(QJsonObject);
     static QJsonObject convertStringToJSonObject(const QString);
     static QString convertJSonObjectToQString(const QJsonObject);
     static QString convertInfoToString(const Info);

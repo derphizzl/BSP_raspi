@@ -96,13 +96,14 @@ uint8_t MainWorker::setEnvironment(const uint8_t dbg_val)
 
 void MainWorker::onSocketValChanged(SENDER sender, Info info)
 {
-    MyDebug::debugprint(LOW, "onSocketValChanged val", QString::number(info.val));
+    MyDebug::debugprint(LOW, "In MainWorker onSocketValChanged() val", QString::number(info.val));
+    MyDebug::debugprint(LOW, "In MainWorker onSocketValChanged() onSocketValChanged sender", QString::number(sender));
     emit socketValChanged(sender, info);
 }
 
 void MainWorker::onHWValChanged(SENDER sender, Info info)
 {
-    MyDebug::debugprint(LOW, "onHWVChanged val", QString::number(info.val));
+    MyDebug::debugprint(LOW, "In MainWorker onHWVChanged() val", QString::number(info.val));
     emit hardwareValChanged(sender, info);
 }
 

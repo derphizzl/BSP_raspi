@@ -15,6 +15,7 @@ class WebServerVar : public QObject
 
 public:
     WebServerVar();
+    ~WebServerVar();
     void initVar(const Info);
     void setValue(const SENDER, Info);
     void getValue(uint32_t& value);

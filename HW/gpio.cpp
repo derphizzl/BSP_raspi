@@ -26,12 +26,12 @@ uint8_t GPIO::initGPIO(const QString name, const int port, const QString directi
 
     if(!exportGPIO())
     {
-        MyDebug::debugprint(HIGH, "Error while exporting GPIO", "");
+        MyDebug::debugprint(HIGH, "In GPIO initGPIO() Error while exporting GPIO", "");
         return 0;
     }
     if(!setDirection())
     {
-        MyDebug::debugprint(HIGH, "Error setting GPIO direction", "");
+        MyDebug::debugprint(HIGH, "In GPIO initGPIO() Error setting GPIO direction", "");
         unexportGPIO();
         return 0;
     }
@@ -39,13 +39,13 @@ uint8_t GPIO::initGPIO(const QString name, const int port, const QString directi
     {
         if(m_direction != "In")
         {
-            MyDebug::debugprint(HIGH, "Error while setting GPIO initval", "");
+            MyDebug::debugprint(HIGH, "In GPIO initGPIO() Error while setting GPIO initval", "");
             unexportGPIO();
             return 0;
         }
     }
     startMonitoring();
-    MyDebug::debugprint(LOW, "Initializing GPIO done..", "");
+    MyDebug::debugprint(LOW, "In GPIO initGPIO() Initializing GPIO done..", "");
     return 1;
 }
 
@@ -57,7 +57,7 @@ void GPIO::startMonitoring()
 
 void GPIO::onValueChanged()
 {
-    MyDebug::debugprint(LOW, "GPIO value changed", "");
+    MyDebug::debugprint(LOW, "In GPIO onValueChanged()", "");
     uint8_t myval;
     getValue(myval);
     Info tmp = {this->m_name, m_command, HW_GPIO, {1, m_port.toInt(), m_direction, ""}, myval};
@@ -78,12 +78,12 @@ uint8_t GPIO::exportGPIO()
         rewind(fp);
         fwrite(m_port.toLatin1(), sizeof(char),m_port.length(), fp);
         fclose(fp);
-        MyDebug::debugprint(LOW, "Exporting GPIO..", "");
+        MyDebug::debugprint(LOW, "In GPIO exportGPIO()..", "");
         return 1;
     }
     else
     {
-        MyDebug::debugprint(HIGH, "GPIO env not set!!", "");
+        MyDebug::debugprint(HIGH, "In GPIO exportGPIO() env not set!!", "");
         return 0;
     }
 }
@@ -111,7 +111,7 @@ uint8_t GPIO::setDirection()
     if(m_direction == "Out")
         fwrite("out", sizeof(char),3, fp);
     fclose(fp);
-    MyDebug::debugprint(LOW, "Set GPIO direction to ", QString(m_direction));
+    MyDebug::debugprint(LOW, "In GPIO setDirection() ", QString(m_direction));
     return 1;
 }
 
@@ -129,12 +129,12 @@ uint8_t GPIO::setValue(const uint8_t value)
         else
             fwrite("0", sizeof(char),1, fp);
         fclose(fp);
-        MyDebug::debugprint(LOW, "Set GPIO value to ", QString::number((int)value));
+        MyDebug::debugprint(LOW, "In GPIO setValue() ", QString::number((int)value));
         return 1;
     }
     else
     {
-        MyDebug::debugprint(HIGH, "GPIO env not set!!", "");
+        MyDebug::debugprint(HIGH, "In GPIO setValue() env not set!!", "");
         return 0;
     }
 }
@@ -161,12 +161,12 @@ uint8_t GPIO::getValue(uint8_t &myvalue)
         if(value=='0')
             myvalue = 0;
         m_value = myvalue;
-        MyDebug::debugprint(LOW, "Read GPIO value as ",  QString::number(m_value));
+        MyDebug::debugprint(LOW, "In GPIO getValue() Read GPIO value as ",  QString::number(m_value));
         return 1;
     }
     else
     {
-        MyDebug::debugprint(HIGH, "GPIO env not set!!", "");
+        MyDebug::debugprint(HIGH, "In GPIO getValue() env not set!!", "");
         return 0;
     }
 }

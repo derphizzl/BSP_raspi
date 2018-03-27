@@ -40,6 +40,7 @@ private:
     uint16_t m_myPort;
     QString m_tmpIP;
     bool m_debug;
+    bool m_isShuttingDown;
 };
 
 #endif //MYWEBSERVER_H
