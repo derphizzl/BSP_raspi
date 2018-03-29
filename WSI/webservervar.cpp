@@ -18,52 +18,44 @@ WebServerVar::~WebServerVar()
 
 void WebServerVar::initVar(const Info info)
 {
-    m_myName = info.name;
-    m_myInfo = info;
+    this->m_attachedNames.push_back(info.name);
 }
 
 void WebServerVar::setValue(const SENDER sender, Info val)
 {
     QJsonObject jo;
     QString msg;
-    //QString strGet = "GET";
-    //is this msg for me?
-    MyDebug::debugprint(LOW, "In WSVar setValue, is msg for me? ", QString::number(val.name.compare(m_myName)));
     MyDebug::debugprint(LOW, "In WSVar setValue InfoName ", val.name);
     MyDebug::debugprint(LOW, "In WSVar setValue InfoVal ", QString::number(val.val));
-    MyDebug::debugprint(LOW, "In WSVar setValue Member info name: ", m_myName);
     MyDebug::debugprint(LOW, "In WSVar setValue Sender ", QString::number(val.type));
 
-    if(val.name.compare(m_myName) == 0)
+    switch(sender)
     {
-        switch(sender)
-        {
-        case HARDWARE:
-            // socketSend
-            m_myValue = val.val;
-            MyDebug::debugprint(LOW, "In WSVar setValue HW sending data to socket ", QString::number(val.val));
-            jo = Helper::convertInfoToQJsonObject(val);
-            msg = Helper::convertJSonObjectToQString(jo);
-            socketsend(msg);
-            break;
-        case SOCKET:
-            MyDebug::debugprint(LOW, "In WSVar setValue WSVar sending data to HW ", QString::number(val.val));
-            emit valueChanged(val); //signal to HW
-            break;
-        case GET:
-            // socketSend
-            m_myValue = val.val;
-            MyDebug::debugprint(LOW, "In WSVar setValue HW sending data to socket on GET", QString::number(val.val));
-            jo = Helper::convertInfoToQJsonObject(val);
-            msg = Helper::convertJSonObjectToQString(jo);
-            socketsend(msg);
-            break;
-        case CLOUD:
-        default:
-            break;
-        }
+    case HARDWARE:
+        // socketSend
+        MyDebug::debugprint(LOW, "In WSVar setValue HW sending data to socket ", QString::number(val.val));
+        jo = Helper::convertInfoToQJsonObject(val);
+        msg = Helper::convertJSonObjectToQString(jo);
+        socketsend(msg);
+        break;
+    case SOCKET:
+        MyDebug::debugprint(LOW, "In WSVar setValue WSVar sending data to HW ", QString::number(val.val));
+        emit valueChanged(SOCKET, val);
+        break;
+    case GET:
+        // socketSend
+        m_myValue = val.val;
+        MyDebug::debugprint(LOW, "In WSVar setValue HW sending data to socket on GET", QString::number(val.val));
+        jo = Helper::convertInfoToQJsonObject(val);
+        msg = Helper::convertJSonObjectToQString(jo);
+        socketsend(msg);
+        break;
+    case CLOUD:
+    default:
+        break;
     }
 }
+
 
 void WebServerVar::getValue(uint32_t &value)
 {
@@ -146,19 +138,11 @@ int WebServerVar::checkForTarget()
     QJsonObject obj_inf = Helper::convertStringToJSonObject(m_messageIn);
     Info hw_inf = Helper::convertJSonObjectToInfo(obj_inf);
     int retval = 1;
-    MyDebug::debugprint(LOW, "In WSVar checkForTarget() my name check:", m_myName);
-    MyDebug::debugprint(LOW, "In WSVar checkForTarget() val", QString::number(hw_inf.val));
-    if(hw_inf.name.compare(m_myName) == 0)  // add not for me, get/set ok
-    {
-        retval = 0;
-    }
-    else if(hw_inf.name == NULL)            // error: could not initialize object members
-        retval = -1;
-    else                                    // add me
-        retval = -2;
+    if(m_attachedNames.contains(hw_inf.name))
+            retval = 0;
+    else
+        retval = -1;                           //not added yet
 
-    MyDebug::debugprint(LOW, "In WSVar checkForTarget() addname ", hw_inf.name);
-    MyDebug::debugprint(LOW, "In WSVar checkForTarget() myname ", m_myName);
     MyDebug::debugprint(LOW, "In WSVar checkForTarget() returns ", QString::number(retval));
     return retval;
 }
@@ -181,7 +165,6 @@ uint8_t WebServerVar::checkCommand()
 {
     QJsonObject jo_command = Helper::convertStringToJSonObject(m_messageIn);
     Info tmpinf = Helper::convertJSonObjectToInfo(jo_command);
-    MyDebug::debugprint(LOW, "In WSVar checkCommand() jo_command value ", jo_command["value"].toString() );
     QString str_command = NULL;
     m_myInfo = Helper::convertJSonObjectToInfo(jo_command);
     if(jo_command.contains("command"))
@@ -223,7 +206,6 @@ uint8_t WebServerVar::checkCommand()
             //initialize Object, connect socket signals/slots and connect to HW signals/slots
             switch(checkVal)
             {
-            case -2:
             case -1:
                 tmpobj = Helper::convertStringToJSonObject(m_messageIn);
                 tmpinf = Helper::convertJSonObjectToInfo(tmpobj);
@@ -243,14 +225,18 @@ uint8_t WebServerVar::checkCommand()
         }
         else if(str_command.compare("setValue") == 0)
         {
-            //setValue to HW
+            //setValue to HL
             MyDebug::debugprint(LOW, "In WSVar checkCommand() In case setValue:", QString::number((int)tmpinf.val));
             if(checkForTarget() == 0)
             {
+                //emit
                 setValue(SOCKET, tmpinf);
-            }else
+            }
+            else
             {
-                MyDebug::debugprint(LOW, "In WSVar checkCommand() setValue not for me: ", m_myName);
+                tmpinf.command = "ENOADD";
+                socketsend(Helper::convertInfoToString(tmpinf));
+                MyDebug::debugprint(LOW, "In WSVar checkCommand() setValue ID not existing", "");
             }
         }
         else if(str_command.compare("getValue") == 0)

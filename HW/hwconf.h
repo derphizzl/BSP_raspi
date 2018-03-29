@@ -7,9 +7,9 @@
 #define HWNUM (sizeof(attachedHW) / sizeof(Info))
 
 const Info attachedHW[] = {
-    {"GPIO4", "", HW_GPIO, {1, 4, "Out", ""}, 0},
-    //{"GPIO2", 5, "Out", 0},
-    //{"GPIO3", 6, "Out", 0}
+/*     name       command       HWType           AddInfo              Value      */
+    {"GPIO4",       "",        HW_GPIO,      {1, 4, "Out", ""},        0},
+    {"GPIO5",       "",        HW_GPIO,      {1, 5, "Out", ""},        0},
 };
 
 #endif // HWCONF_H

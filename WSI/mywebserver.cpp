@@ -24,6 +24,7 @@ MyWebserver::~MyWebserver()
     m_isShuttingDown = true;
     m_pWebSocketServer->close();
     qDeleteAll(m_clients.begin(), m_clients.end());
+    m_clients.clear();
     MyDebug::debugprint(HIGH, "Done.", "");
 
 }
@@ -39,7 +40,7 @@ void MyWebserver::onNewConnection()
     // connect WSV to WS
     connect(newvar, &WebServerVar::socketDisconnected, this, &MyWebserver::socketDisconnected);
     connect(this, SIGNAL(messageToSocketReceived(SENDER, Info)), newvar, SLOT(onHWMessageReceived(SENDER, Info)));
-    connect(newvar, SIGNAL(valueChanged(Info)), this, SLOT(onSocketToHWMSGReceived(Info)));
+    connect(newvar, SIGNAL(valueChanged(SENDER,Info)), this, SLOT(onSocketToHWMSGReceived(SENDER,Info)));
     connect(newvar, SIGNAL(sigGetValue(QString)), this, SLOT(onGetValue(QString)));
     if(!checkIfIPConnected(m_tmpIP))
     {
@@ -52,7 +53,6 @@ void MyWebserver::onNewConnection()
         MyDebug::debugprint(LOW, "In WS IP allready authenticated", "");
         newvar->setLoginState(true);
     }
-
     m_clients.push_back(newvar);
 }
 
@@ -61,23 +61,24 @@ void MyWebserver::socketDisconnected(WebServerVar *sock)
     WebServerVar *pClient = sock;
 
     if (pClient) {
-        if(m_ipaddrVec.contains(pClient->getIP()))
-        {
-            m_ipaddrVec.removeOne(pClient->getIP());
-            MyDebug::debugprint(LOW, "In WS onDisconnected IP Adress deleted", "");
-        }
+//        if(m_ipaddrVec.contains(pClient->getIP()))
+//        {
+//            m_ipaddrVec.removeOne(pClient->getIP());
+//            MyDebug::debugprint(LOW, "In WS onDisconnected IP Address deleted", "");
+//        }
         if(m_clients.contains(pClient))
         {
             MyDebug::debugprint(LOW, "In WS onDisconnected client deleted", "");
-            //m_clients.at(m_clients.indexOf(pClient))->~WebServerVar();
-            if(!m_isShuttingDown)
+            if(!m_isShuttingDown) {
+                MyDebug::debugprint(LOW, "In WS client deleted length ", QString::number(m_clients.length()));
+                QVector<WebServerVar *>::iterator it = (QVector<WebServerVar *>::iterator)m_clients[m_clients.indexOf(pClient)];
+                qDeleteAll(it, it);             //call destructor of WebServerVar
                 m_clients.remove(m_clients.indexOf(pClient));
+                MyDebug::debugprint(LOW, "In WS client deleted new length ", QString::number(m_clients.length()));
+            }
         }
-        MyDebug::debugprint(LOW, "In WS client deleted length ", QString::number(m_clients.length()));
-        MyDebug::debugprint(LOW, "In WS client deleted", QString::number(m_clients.removeOne(pClient)));
-        MyDebug::debugprint(LOW, "In WS client deleted new length ", QString::number(m_clients.length()));
     }
-    MyDebug::debugprint(MEDIUM, "Socket disconnected:", pClient->getName());
+    MyDebug::debugprint(MEDIUM, "Socket disconnected:", pClient->getIP());
 }
 
 void MyWebserver::onHWtoSocketMSGReceived(SENDER sender, Info info)
@@ -95,10 +96,10 @@ void MyWebserver::onHWtoSocketMSGReceived(SENDER sender, Info info)
     }
 }
 
-void MyWebserver::onSocketToHWMSGReceived(Info info)
+void MyWebserver::onSocketToHWMSGReceived(SENDER sender,Info info)
 {
     MyDebug::debugprint(LOW, "onSocketToHWMSGReceived value ", QString::number(info.val));
-    emit messageToHWReceived(SOCKET, info);
+    emit messageToHWReceived(sender, info);
 }
 
 void MyWebserver::onGetValue(QString key)

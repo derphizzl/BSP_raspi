@@ -27,7 +27,7 @@ public slots:
     void onNewConnection();
     void socketDisconnected(WebServerVar *);
     void onHWtoSocketMSGReceived(SENDER, Info);
-    void onSocketToHWMSGReceived(Info);
+    void onSocketToHWMSGReceived(SENDER sender, Info);
     void onGetValue(QString key);
     void onLogin(Info);
 

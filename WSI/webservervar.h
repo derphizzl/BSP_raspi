@@ -28,7 +28,7 @@ public:
     void setLoginState(const bool);
 
 signals:
-    void valueChanged(Info);
+    void valueChanged(SENDER,Info);
     void socketDisconnected(WebServerVar *);
     void sigGetValue(QString key);
     void login(Info);
@@ -37,6 +37,7 @@ public slots:
     // send data over socket
     void onHWMessageReceived(SENDER,Info);
     void onSocketMessageReceived(QString msg);
+    //void onMessageReceived(SENDER, Info);
     void onSocketDisconnected();
     void onLoginStateChanged(const bool);
 
@@ -60,8 +61,7 @@ private:
     QString m_messageIn;
     QString m_messageOut;
 
-    uint8_t convertInfoToJSON();
-    uint8_t convertJSONToInfo();
+    QVector<QString> m_attachedNames;
 
     bool m_isLoginDone;
 };
