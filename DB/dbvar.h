@@ -22,6 +22,7 @@ private:
     void initDB();
     void closeDB();
     void setValue(const QString key, const int value);
+    int checkIfDAPExists(const Info);
 
 public slots:
     void onGetData(SENDER, const Info info);

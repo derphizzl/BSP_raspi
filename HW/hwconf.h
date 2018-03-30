@@ -2,7 +2,7 @@
 #define HWCONF_H
 #include "../Utils/types.h"
 
-//add new HW here & define NUM, as well as in hwworker.h member m_HW, readINI, initializeHW, prepareHW, setEnvironment
+//add new HW here, in hwworker.h (init, close, QVector), initializeHW, prepareHW, setEnvironment
 
 #define HWNUM (sizeof(attachedHW) / sizeof(Info))
 

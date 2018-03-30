@@ -23,7 +23,7 @@ void HWWorker::checkAttachedHW()
 
 uint8_t HWWorker::initializeHW()
 {
-    MyDebug::debugprint(MEDIUM, "Initializing Hardware..", "");
+    MyDebug::debugprint(HIGH, "Initializing Hardware..", "");
     checkAttachedHW();
     //GPIO
     if(m_withGPIO)
@@ -35,7 +35,7 @@ uint8_t HWWorker::initializeHW()
         }
     }
 
-    MyDebug::debugprint(MEDIUM, "HW initializing done", "");
+    MyDebug::debugprint(HIGH, "HW initializing done", "");
     return 1;
 }
 

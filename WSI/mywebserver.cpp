@@ -11,7 +11,7 @@ MyWebserver::MyWebserver(uint16_t port, QObject *parent) :
 {
     m_myPort = port;
     if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
-        MyDebug::debugprint(HIGH, "MyWebserver initializing, listening on port ", QString::number(port));
+        MyDebug::debugprint(HIGH, "MyWebserver initializing, listening on port", QString::number(port));
         connect(m_pWebSocketServer, &QWebSocketServer::newConnection,
                 this, &MyWebserver::onNewConnection);
         connect(m_pWebSocketServer, &QWebSocketServer::closed, this, &MyWebserver::closed);
@@ -33,7 +33,7 @@ void MyWebserver::onNewConnection()
 {
     WebServerVar* newvar = new WebServerVar();
     newvar->setSocket(m_pWebSocketServer->nextPendingConnection());
-    MyDebug::debugprint(HIGH, "In WS New connection from ", newvar->getSocket()->peerAddress().toString());
+    MyDebug::debugprint(HIGH, "New connection from ", newvar->getSocket()->peerAddress().toString());
     m_tmpIP = newvar->getSocket()->peerAddress().toString();
     newvar->setIP(m_tmpIP);
 
@@ -78,18 +78,28 @@ void MyWebserver::socketDisconnected(WebServerVar *sock)
             }
         }
     }
-    MyDebug::debugprint(MEDIUM, "Socket disconnected:", pClient->getIP());
+    MyDebug::debugprint(HIGH, "Socket disconnected:", pClient->getIP());
 }
 
 void MyWebserver::onHWtoSocketMSGReceived(SENDER sender, Info info)
 {
     MyDebug::debugprint(LOW, "In WS onHW2SocketMSG(): SENDER: ", QString::number(sender));
-    if(sender == HARDWARE)
+    if(sender == ERROR)
+    {
+        info.command = "ENOHW";
+        emit messageToSocketReceived(sender, info);
+    }
+    else if(sender == ADD)
+    {
+        info.command = "ADDOK";
+        emit messageToSocketReceived(sender, info);
+    }
+    else if(sender == HARDWARE)
     {
         info.command = "HWINF";
         emit messageToSocketReceived(sender, info);
     }
-    if(sender == GET)
+    else if(sender == GET)
     {
         info.command = "GET";
         emit messageToSocketReceived(sender, info);

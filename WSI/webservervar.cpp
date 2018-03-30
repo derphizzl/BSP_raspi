@@ -28,6 +28,7 @@ void WebServerVar::setValue(const SENDER sender, Info val)
     MyDebug::debugprint(LOW, "In WSVar setValue InfoName ", val.name);
     MyDebug::debugprint(LOW, "In WSVar setValue InfoVal ", QString::number(val.val));
     MyDebug::debugprint(LOW, "In WSVar setValue Sender ", QString::number(val.type));
+    Info toReturn = val;
 
     switch(sender)
     {
@@ -41,6 +42,16 @@ void WebServerVar::setValue(const SENDER sender, Info val)
     case SOCKET:
         MyDebug::debugprint(LOW, "In WSVar setValue WSVar sending data to HW ", QString::number(val.val));
         emit valueChanged(SOCKET, val);
+        break;
+    case ERROR:
+        MyDebug::debugprint(LOW, "In WSVar setValue WSVar sending ERROR to Socket ", toReturn.name);
+        toReturn.command = "EADD";
+        socketsend(Helper::convertJSonObjectToQString(Helper::convertInfoToQJsonObject(toReturn)));
+        break;
+    case ADD:
+        initVar(toReturn);
+        toReturn.command = "ADDOK";
+        socketsend(Helper::convertJSonObjectToQString(Helper::convertInfoToQJsonObject(toReturn)));
         break;
     case GET:
         // socketSend
@@ -73,7 +84,7 @@ void WebServerVar::setSocket(QWebSocket *socket)
     connect(m_mySocket, &QWebSocket::textMessageReceived, this, &WebServerVar::onSocketMessageReceived);
     connect(m_mySocket, &QWebSocket::disconnected, this, &WebServerVar::onSocketDisconnected);
     connect(m_mySocket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error),
-            [=](QAbstractSocket::SocketError error){ MyDebug::debugprint(HIGH, "SOCKETERROR!!!!!", QString::number(error));});
+            [=](QAbstractSocket::SocketError error){ MyDebug::debugprint(LOW, "Socketerror Nr:", QString::number(error));});
 }
 
 QWebSocket *WebServerVar::getSocket()
@@ -103,7 +114,7 @@ void WebServerVar::onHWMessageReceived(SENDER sender, Info info)
 
 void WebServerVar::onSocketMessageReceived(QString msg)
 {
-    MyDebug::debugprint(LOW, "In WSVar onSocketMessageReceived", msg);
+    MyDebug::debugprint(MEDIUM, "Message received:", msg);
     m_messageIn = msg;
     checkCommand();
 }
@@ -158,7 +169,7 @@ void WebServerVar::socketsend(const QString msg)
     else
         MyDebug::debugprint(HIGH, "In WSVar socketsend() ERROR: Socket not valid", "");
 
-    MyDebug::debugprint(MEDIUM, "In WSVar socketsend(): MSG sent!", "");
+    MyDebug::debugprint(MEDIUM, "Message sent: ", msg);
 }
 
 uint8_t WebServerVar::checkCommand()
@@ -210,18 +221,34 @@ uint8_t WebServerVar::checkCommand()
                 tmpobj = Helper::convertStringToJSonObject(m_messageIn);
                 tmpinf = Helper::convertJSonObjectToInfo(tmpobj);
                 tmpinf.val = 1;
-                initVar(tmpinf);
-                tmpinf.command = "ADDOK";
-                socketsend(Helper::convertJSonObjectToQString(Helper::convertInfoToQJsonObject(tmpinf)));
+                setValue(SOCKET, tmpinf);
                 break;
             default:                //message is for me, but allready added
                 break;
             }
-
         }
         else if(str_command.compare("remove") == 0)
         {
-            //delete
+            if(checkForTarget() == 0)
+            {
+                if(m_attachedNames.removeOne(tmpinf.name))
+                {
+                    MyDebug::debugprint(LOW, "In WSVar Removed entry ", tmpinf.name);
+                    tmpinf.command = "REMOVEOK";
+                    socketsend(Helper::convertInfoToString(tmpinf));
+                }
+                else
+                {
+                    tmpinf.command = "EREMOVE";
+                    MyDebug::debugprint(LOW, QString("In WSVar Could not remmove entry " + tmpinf.name), "since it is not in the attached list");
+                    socketsend(Helper::convertInfoToString(tmpinf));
+                }
+            }
+            else
+            {
+                tmpinf.command = "ENOADD";
+                socketsend(Helper::convertInfoToString(tmpinf));
+            }
         }
         else if(str_command.compare("setValue") == 0)
         {

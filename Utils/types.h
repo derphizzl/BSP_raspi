@@ -56,7 +56,9 @@ typedef enum SENDER {
     HARDWARE = 0,
     SOCKET,
     GET,
-    CLOUD
+    ADD,
+    CLOUD,
+    ERROR
 } SENDER;
 
 #endif // TYPES_H

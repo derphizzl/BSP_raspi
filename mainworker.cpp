@@ -59,11 +59,11 @@ uint8_t MainWorker::startUp()
         return 0;
     }
 
-    // initialize WebService
-    m_webserver = new MyWebserver(m_port);
-
     //initialize DB
     m_dbvar = new DBVar();
+
+    // initialize WebService
+    m_webserver = new MyWebserver(m_port);
 
     // connections
     doConnect();
