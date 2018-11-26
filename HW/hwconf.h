@@ -6,10 +6,9 @@
 
 #define HWNUM (sizeof(attachedHW) / sizeof(Info))
 
-const Info attachedHW[] = {
-/*     name       command       HWType           AddInfo              Value      */
-    {"GPIO4",       "",        HW_GPIO,      {1, 4, "Out", ""},        0},
-    {"GPIO5",       "",        HW_GPIO,      {1, 5, "Out", ""},        0},
+static Info attachedHW[] = {
+/*     name       command       HWType           AddInfo              Value          blacklisted*/
+    {"GPIO3",       "",        HW_GPIO,      {1, 3, "Out", ""},        0,                 0},
 };
 
 #endif // HWCONF_H

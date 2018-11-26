@@ -54,7 +54,6 @@ void WebServerVar::setValue(const SENDER sender, Info val)
         socketsend(Helper::convertJSonObjectToQString(Helper::convertInfoToQJsonObject(toReturn)));
         break;
     case GET:
-        // socketSend
         m_myValue = val.val;
         MyDebug::debugprint(LOW, "In WSVar setValue HW sending data to socket on GET", QString::number(val.val));
         jo = Helper::convertInfoToQJsonObject(val);
@@ -129,7 +128,7 @@ void WebServerVar::onLoginStateChanged(const bool state)
     setLoginState(state);
     MyDebug::debugprint(LOW, "In WSVar onLoginStateChanged() to", QString::number(state));
     if(state) {
-        Info inf = {"", "LOGINOK", HW_NONE, {0, 0, "", ""}, 0};
+        Info inf = {"", "LOGINOK", HW_NONE, {0, 0, "", ""}, 0, 0};
         socketsend(Helper::convertInfoToString(inf));
     }
 }
@@ -138,7 +137,7 @@ void WebServerVar::setLoginState(const bool state)
 {
     if(!state)
     {
-        Info inf = {"", "ELOGIN", HW_NONE, {0, 0, "", ""}, 0};
+        Info inf = {"", "ELOGIN", HW_NONE, {0, 0, "", ""}, 0, 0};
         socketsend(Helper::convertInfoToString(inf));
     }
     this->m_isLoginDone = state;
@@ -200,7 +199,7 @@ uint8_t WebServerVar::checkCommand()
         }
         else
         {
-            Info inf = {"", "LOGGEDIN", HW_NONE, {0, 0, "", ""}, 0};
+            Info inf = {"", "LOGGEDIN", HW_NONE, {0, 0, "", ""}, 0, 0};
             socketsend(Helper::convertInfoToString(inf));
         }
     }

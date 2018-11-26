@@ -7,48 +7,28 @@ MainWorker::MainWorker()
 
 MainWorker::~MainWorker()
 {
-    m_hwworker->~HWWorker();
-    m_webserver->~MyWebserver();
-    m_dbvar->~DBVar();
+    if(isStartedUp)
+    {
+        m_hwworker->~HWWorker();
+        m_webserver->~MyWebserver();
+        m_dbvar->~DBVar();
+    }
 }
 
 uint8_t MainWorker::startUp()
 {
-    QString dbg_ini_val, port_ini;
-    //read ini file
-    //debug info
-    if((dbg_ini_val = Helper::readINI(QString(INI_FILE_PATH), "Debug", "DebugPriority")) == NULL) {
-        qDebug() << "ERROR reading debug information from ini file";
+    isStartedUp = false;
+    // initialize environment according to user data
+    if(getUserData() < 1)
+    {
+        qDebug() << "Could not parse config file";
         return 0;
     }
 
-    //ws port
-    if((port_ini = Helper::readINI(QString(INI_FILE_PATH), "Network", "Port")) == NULL)
+    // get blacklisted ports and apply to hwconf
+    if(getBlacklistAndApplyToHW() < 1)
     {
-        qDebug() << "ERROR reading network information from ini file";
-        return 0;
-    }
-    m_port = port_ini.toInt();
-
-    //get ws username & password
-    QString credentials;
-    if((credentials = Helper::readINI(QString(INI_FILE_PATH), "Credentials", "Username")) == NULL)
-    {
-        qDebug() << "ERROR reading username from ini file";
-        return 0;
-    }
-    Helper::setUsername(credentials);
-    if((credentials = Helper::readINI(QString(INI_FILE_PATH), "Credentials", "Password")) == NULL)
-    {
-        qDebug() << "ERROR reading password from ini file";
-        return 0;
-    }
-    Helper::setPassword(credentials);
-
-    // initialize env according to ini file
-    if(!setEnvironment(dbg_ini_val.toInt()))
-    {
-        qDebug() << "ERROR setting the environment";
+        qDebug() << "Could not parse blacklist file";
         return 0;
     }
 
@@ -68,6 +48,8 @@ uint8_t MainWorker::startUp()
     // connections
     doConnect();
 
+    isStartedUp = true;
+
     return 1;
 }
 
@@ -85,6 +67,63 @@ void MainWorker::doConnect()
 
     //From WS getValue
     QObject::connect(m_webserver, SIGNAL(sigGetValue(SENDER, const Info)), m_dbvar, SLOT(onGetData(SENDER, const Info)));
+}
+
+uint8_t MainWorker::getUserData()
+{
+    QString dbg_ini_val, port_ini;
+
+    //read ini file
+    //debug info
+    if((dbg_ini_val = Helper::readINI(QString(CONFIG_INI_PATH), "Debug", "DebugPriority")) == NULL) {
+        qDebug() << "ERROR reading debug information from ini file";
+        return 0;
+    }
+
+    //ws port
+    if((port_ini = Helper::readINI(QString(CONFIG_INI_PATH), "Network", "Port")) == NULL)
+    {
+        qDebug() << "ERROR reading network information from ini file";
+        return 0;
+    }
+    m_port = port_ini.toInt();
+
+    //get ws username & password
+    QString credentials;
+    if((credentials = Helper::readINI(QString(CONFIG_INI_PATH), "Credentials", "Username")) == NULL)
+    {
+        qDebug() << "ERROR reading username from ini file";
+        return 0;
+    }
+    Helper::setUsername(credentials);
+    if((credentials = Helper::readINI(QString(CONFIG_INI_PATH), "Credentials", "Password")) == NULL)
+    {
+        qDebug() << "ERROR reading password from ini file";
+        return 0;
+    }
+    Helper::setPassword(credentials);
+
+    // initialize env according to ini file
+    if(!setEnvironment(dbg_ini_val.toInt()))
+    {
+        qDebug() << "ERROR setting the environment";
+        return 0;
+    }
+
+    return 1;
+}
+
+uint8_t MainWorker::getBlacklistAndApplyToHW()
+{
+    QVector<QString> blacklist_ini_val;
+    blacklist_ini_val = Helper::readINIList(QString(BLACKLIST_INI_PATH), "Hardware", "Port");
+    if(blacklist_ini_val.length() < 1)
+    {
+        qDebug() << "ERROR reading blacklist ini file";
+        return 0;
+    }
+    m_hwworker->applyBlackList(blacklist_ini_val);
+    return 1;
 }
 
 uint8_t MainWorker::setEnvironment(const uint8_t dbg_val)

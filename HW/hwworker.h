@@ -17,6 +17,7 @@ public:
     HWWorker();
     ~HWWorker();
     uint8_t initializeHW();
+    void applyBlackList(QVector<QString> blacklist);
 
 private:
     // GPIOs
@@ -27,6 +28,7 @@ private:
 
     void checkAttachedHW();
 
+    QVector<QString> m_blacklist;
 public slots:
     void onValueChanged(SENDER, Info);
     void onSocketMSG(SENDER, Info);

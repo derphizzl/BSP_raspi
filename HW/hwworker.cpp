@@ -14,9 +14,28 @@ void HWWorker::checkAttachedHW()
 {
     for(uint i = 0; i < HWNUM; ++i)
     {
+        if(attachedHW[i].isBlacklisted)
+            continue;
         if(attachedHW[i].type == HW_GPIO)
         {
+            MyDebug::debugprint(HIGH, "HW found: ", QString(HW_GPIO));
             m_withGPIO = true;
+        }
+    }
+}
+
+void HWWorker::applyBlackList(QVector<QString> blacklist)
+{
+    m_blacklist = blacklist;
+    QVector<QString>::Iterator it = blacklist.begin(), end = blacklist.end();
+    for(uint i = 0; i < HWNUM; ++i)
+    {
+        for(; it != end; it++)
+        {
+            if(attachedHW[i].info.arg2 == (*it).toInt())
+            {
+                attachedHW[i].isBlacklisted = 1;
+            }
         }
     }
 }

@@ -103,6 +103,25 @@ QString Helper::readINI(const QString path, const QString group, const QString &
     return retval;
 }
 
+QVector<QString> Helper::readINIList(const QString path, const QString group, const QString &key)
+{
+    QVector<QString> retval;
+    QSettings settings(path, QSettings::IniFormat);
+    settings.beginGroup(group);
+    const QStringList childKeys = settings.childKeys();
+    foreach (const QString &childKey, childKeys)
+    {
+        if(childKey.compare(key) == 0)
+        {
+            MyDebug::debugprint(HIGH, "Blacklist: ", settings.value(childKey).toString());
+            retval.push_back(settings.value(childKey).toString());
+        }
+    }
+    settings.endGroup();
+
+    return retval;
+}
+
 void Helper::setUsername(const QString uname)
 {
     m_username = m_username == NULL ? uname : m_username;

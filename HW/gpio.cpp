@@ -31,7 +31,7 @@ uint8_t GPIO::initGPIO(const QString name, const int port, const QString directi
     }
     if(!setDirection())
     {
-        MyDebug::debugprint(HIGH, "In GPIO initGPIO() Error setting GPIO direction", "");
+        MyDebug::debugprint(HIGH, "In GPIO initGPIO() Error setting GPIO direction", m_directionPath);
         unexportGPIO();
         return 0;
     }
@@ -60,7 +60,7 @@ void GPIO::onValueChanged()
     MyDebug::debugprint(LOW, "In GPIO onValueChanged()", "");
     uint8_t myval;
     getValue(myval);
-    Info tmp = {this->m_name, m_command, HW_GPIO, {1, m_port.toInt(), m_direction, ""}, myval};
+    Info tmp = {this->m_name, m_command, HW_GPIO, {1, m_port.toInt(), m_direction, ""}, myval, 0};
     emit valueChanged(HARDWARE, tmp);
 }
 
@@ -78,7 +78,7 @@ uint8_t GPIO::exportGPIO()
         rewind(fp);
         fwrite(m_port.toLatin1(), sizeof(char),m_port.length(), fp);
         fclose(fp);
-        MyDebug::debugprint(LOW, "In GPIO exportGPIO()..", "");
+        MyDebug::debugprint(LOW, "In GPIO exportGPIO(): ", "GPIO" + m_port);
         return 1;
     }
     else

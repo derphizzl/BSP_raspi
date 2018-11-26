@@ -22,6 +22,7 @@ public:
     static QString convertInfoToString(const Info);
     static uint8_t int2HWTYPE(const int, HWTYPE&);
     static QString readINI(const QString path, const QString group, const QString &key);
+    static QVector<QString> readINIList(const QString path, const QString group, const QString &key);
     static void setUsername(QString);
     static void setPassword(QString);
     static void getUsername(QString&);

@@ -1,5 +1,6 @@
 #ifndef TYPES_H
 #define TYPES_H
+#include <QString>
 
 typedef enum HWTYPE {
     HW_NONE = 0,
@@ -29,19 +30,22 @@ typedef struct Info {
     HWTYPE type;
     AddInfo info;
     int val;
+    uint8_t isBlacklisted;
 
-    Info(QString name, QString command, HWTYPE type, AddInfo info, int value) :
+    Info(QString name, QString command, HWTYPE type, AddInfo info, int value, uint8_t blacklisted) :
             name(name),
             command(command),
             type(type),
             info(info),
-            val(value)
+            val(value),
+            isBlacklisted(blacklisted)
     {}
     Info() :
             name(),
             command(),
             type(HW_NONE),
-            val()
+            val(),
+            isBlacklisted()
     {}
 
 } Info;
@@ -60,5 +64,10 @@ typedef enum SENDER {
     CLOUD,
     ERROR
 } SENDER;
+
+typedef struct HWDec {
+    QString name;
+    int port;
+} HWDec;
 
 #endif // TYPES_H

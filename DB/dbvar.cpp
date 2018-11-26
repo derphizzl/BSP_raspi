@@ -23,7 +23,7 @@ Info DBVar::getValue(const QString key)
             return **it;
         }
     }
-    Info voidy = {"", "EHW", HW_GPIO, {1, 4, "", ""}, 0};
+    Info voidy = {"", "EHW", HW_GPIO, {1, 4, "", ""}, 0, 0};
     return voidy;
 }
 

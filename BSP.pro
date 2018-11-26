@@ -23,7 +23,8 @@ SOURCES += main.cpp \
     mainworker.cpp \
     Utils/mydebug.cpp \
     HW/hwworker.cpp \
-    Utils/helper.cpp
+    Utils/helper.cpp \
+    HW/spi.cpp
 
 HEADERS += \
     HW/gpio.h \
@@ -35,4 +36,5 @@ HEADERS += \
     HW/hwconf.h \
     Utils/types.h \
     Utils/helper.h \
-    HW/hwworker.h
+    HW/hwworker.h \
+    HW/spi.h
