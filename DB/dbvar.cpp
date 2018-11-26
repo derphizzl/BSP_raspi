@@ -34,6 +34,8 @@ void DBVar::initDB()
     {
         Info* pInf = new Info;
         *pInf = attachedHW[i];
+        if(pInf->isBlacklisted)
+            continue;
         MyDebug::debugprint(LOW, "In DB init(): ", Helper::convertJSonObjectToQString( Helper::convertInfoToQJsonObject(*pInf) ));
         m_mydb.push_back(pInf);
     }
