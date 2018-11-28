@@ -21,7 +21,6 @@ public:
     void applyBlackList(QVector<QString> blacklist);
 
 private:
-    // GPIOs
     bool m_withGPIO;
     bool m_withSPI;
     /*GPIO*/
@@ -42,7 +41,6 @@ public slots:
 
 signals:
     void valueChanged(SENDER, Info);
-
 };
 
 #endif // HWWORKER_H

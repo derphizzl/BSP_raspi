@@ -23,8 +23,10 @@ uint8_t SPI::setValue(const BYTE value)
 {
     if(isDeviceOpen)
     {
-        m_command = "setValue";
         SPI_Write(value);
+        m_command = "setValue";
+        Info tmp = {"SPI", m_command, HW_SPI, {0, 0, "", ""}, value, 0};
+        emit valueChanged(HARDWARE, tmp);
         return 1;
     }
     else
@@ -52,7 +54,6 @@ int SPI::SPI_Config(uint8_t mode, uint32_t speed)
     int order = BIT_ORDER_0;
 
     mConfigMutex.lock();
-    MyDebug::debugprint(HIGH, "Initializing SPI...\n", "");
     int ret = 0;
     openSPIDevice();
 

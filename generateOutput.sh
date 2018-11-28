@@ -21,3 +21,4 @@ cp $CONFIG_INI $BSPDIR
 cp $BLACKLIST_INI $BSPDIR
 
 tar -czf $BSPDIR.tar.gz $BSPDIR
+rm -r $BSPDIR

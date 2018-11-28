@@ -9,6 +9,7 @@ HWWorker::HWWorker()
 HWWorker::~HWWorker()
 {
     closeGPIO();
+    closeSPI();
 }
 
 void HWWorker::checkAttachedHW()
@@ -19,12 +20,12 @@ void HWWorker::checkAttachedHW()
             continue;
         if(attachedHW[i].type == HW_GPIO)
         {
-            MyDebug::debugprint(HIGH, "HW found: ", QString(HW_GPIO));
+            MyDebug::debugprint(HIGH, "HW found: ", "HW_GPIO");
             m_withGPIO = true;
         }
         if(attachedHW[i].type == HW_SPI)
         {
-            MyDebug::debugprint(HIGH, "HW found: ", QString(HW_SPI));
+            MyDebug::debugprint(HIGH, "HW found: ", "HW_SPI");
             m_withSPI = true;
         }
     }
@@ -54,6 +55,15 @@ uint8_t HWWorker::initializeHW()
     if(m_withGPIO)
     {
         if(!initGPIO())
+        {
+            MyDebug::debugprint(HIGH, "ERROR: Hardware initiatlizing returned 0", "");
+            return 0;
+        }
+    }
+    //SPI
+    if(m_withSPI)
+    {
+        if(!initSPI())
         {
             MyDebug::debugprint(HIGH, "ERROR: Hardware initiatlizing returned 0", "");
             return 0;
