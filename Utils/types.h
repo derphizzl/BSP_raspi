@@ -4,7 +4,9 @@
 
 typedef enum HWTYPE {
     HW_NONE = 0,
-    HW_GPIO
+    HW_GPIO,
+    HW_SPI,
+    HW_I2C
 } HWTYPE;
 
 // maybe a gerneral version would be nice
@@ -65,9 +67,8 @@ typedef enum SENDER {
     ERROR
 } SENDER;
 
-typedef struct HWDec {
-    QString name;
-    int port;
-} HWDec;
+typedef unsigned char BYTE;
+typedef unsigned short WORD;
+typedef unsigned long DWORD;
 
 #endif // TYPES_H

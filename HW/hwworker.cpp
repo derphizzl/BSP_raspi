@@ -3,6 +3,7 @@
 HWWorker::HWWorker()
 {
     m_withGPIO = false;
+    m_withSPI = false;
 }
 
 HWWorker::~HWWorker()
@@ -20,6 +21,11 @@ void HWWorker::checkAttachedHW()
         {
             MyDebug::debugprint(HIGH, "HW found: ", QString(HW_GPIO));
             m_withGPIO = true;
+        }
+        if(attachedHW[i].type == HW_SPI)
+        {
+            MyDebug::debugprint(HIGH, "HW found: ", QString(HW_SPI));
+            m_withSPI = true;
         }
     }
 }
@@ -83,6 +89,30 @@ uint8_t HWWorker::initGPIO()
     return 1;
 }
 
+uint8_t HWWorker::initSPI()
+{
+    MyDebug::debugprint(MEDIUM, "Initializing SPI..", "");
+    for(uint i = 0; i < HWNUM; i++)
+    {
+        if(attachedHW[i].type == HW_SPI)
+        {
+            SPI* tmpspi = SPI::getInstance();
+            // initialize GPIOs, attach to signal and push them into m_gpios
+            if(tmpspi->SPI_Config(attachedHW[i].info.arg1, attachedHW[i].info.arg2)) {
+                QObject::connect(tmpspi, SIGNAL(valueChanged(SENDER, Info)), this, SLOT(onValueChanged(SENDER, Info)));
+            }
+            else
+            {
+                MyDebug::debugprint(HIGH, "Error initializing SPI", "");
+                return 0;
+            }
+        }
+    }
+
+    MyDebug::debugprint(MEDIUM, "Done.", "");
+    return 1;
+}
+
 uint8_t HWWorker::closeGPIO()
 {
     MyDebug::debugprint(MEDIUM, "Closing GPIOs...", "");
@@ -94,6 +124,15 @@ uint8_t HWWorker::closeGPIO()
     }
     m_gpios.clear();
 
+    MyDebug::debugprint(MEDIUM, "Done.", "");
+    return 1;
+}
+
+uint8_t HWWorker::closeSPI()
+{
+    MyDebug::debugprint(MEDIUM, "Closing SPI...", "");
+    SPI* tmp = SPI::getInstance();
+    tmp->closeSPIDevice();
     MyDebug::debugprint(MEDIUM, "Done.", "");
     return 1;
 }

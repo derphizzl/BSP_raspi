@@ -6,6 +6,7 @@
 
 #include "Utils/mydebug.h"
 #include "gpio.h"
+#include "spi.h"
 #include "hwconf.h"
 #include "../Utils/types.h"
 
@@ -22,8 +23,14 @@ public:
 private:
     // GPIOs
     bool m_withGPIO;
+    bool m_withSPI;
+    /*GPIO*/
     uint8_t initGPIO();
     uint8_t closeGPIO();
+    /*SPI*/
+    uint8_t initSPI();
+    uint8_t closeSPI();
+
     QVector<GPIO*> m_gpios;
 
     void checkAttachedHW();
