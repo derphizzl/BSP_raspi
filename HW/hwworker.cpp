@@ -162,6 +162,7 @@ void HWWorker::onSocketMSG(SENDER sender, Info info)
         switch(info.type)
         {
         case HW_GPIO:
+        {
             for(int i = 0; i < m_gpios.size(); ++i)
             {
                 if(m_gpios.at(i)->getName().compare(info.name) == 0)
@@ -171,8 +172,21 @@ void HWWorker::onSocketMSG(SENDER sender, Info info)
                     break;
                 }
             }
+        }
             break;
-        default:
+        case HW_SPI: {
+            SPI* myspi = SPI::getInstance();
+            BYTE mybyte = (BYTE) info.val;
+            MyDebug::debugprint(LOW, "SPI Value sent: ", QString::number(info.val));
+            /*Info tmp = */myspi->setValue(mybyte);
+            //MyDebug::debugprint(LOW, "SPI Value received: ", QString::number(tmp.val));
+        }
+            break;
+        case HW_I2C:
+            //TODO
+            break;
+        case HW_NONE:
+            //TODO
             break;
         }
     }

@@ -14,7 +14,7 @@
 static Info attachedHW[] = {
 /*     name       command       HWType           AddInfo              Value          blacklisted*/
     {"GPIO3",       "",        HW_GPIO,      {1, 3, "Out", ""},        0,                 0},
-    {"SPI",         "",        HW_SPI,       {0, 1000000, "", ""},     0,                 0}
+    {"SPI",         "",        HW_SPI,       {3, 1000000, "", ""},     0,                 0}
 };
 
 #endif // HWCONF_H

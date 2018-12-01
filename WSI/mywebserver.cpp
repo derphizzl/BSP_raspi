@@ -84,25 +84,28 @@ void MyWebserver::socketDisconnected(WebServerVar *sock)
 void MyWebserver::onHWtoSocketMSGReceived(SENDER sender, Info info)
 {
     MyDebug::debugprint(LOW, "In WS onHW2SocketMSG(): SENDER: ", QString::number(sender));
-    if(sender == ERROR)
-    {
+    switch(sender) {
+    case ERROR:
         info.command = "ENOHW";
         emit messageToSocketReceived(sender, info);
-    }
-    else if(sender == ADD)
-    {
+        break;
+    case ADD:
         info.command = "ADDOK";
         emit messageToSocketReceived(sender, info);
-    }
-    else if(sender == HARDWARE)
-    {
+        break;
+    case HARDWARE:
         info.command = "HWINF";
         emit messageToSocketReceived(sender, info);
-    }
-    else if(sender == GET)
-    {
+        break;
+    case GET:
         info.command = "GET";
         emit messageToSocketReceived(sender, info);
+        break;
+    case CLOUD:
+        //TODO
+        break;
+    default:
+        break;
     }
 }
 

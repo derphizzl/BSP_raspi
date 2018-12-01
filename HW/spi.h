@@ -1,6 +1,8 @@
 #ifndef SPI_H
 #define SPI_H
 
+/* SPI Master implementation PT */
+
 #include <QObject>
 #include <QMutex>
 #include <stdint.h>
@@ -23,7 +25,7 @@
 
 #define ARRAY_SIZE(a)		(sizeof(a) / sizeof((a)[0]))
 #define SPI_1               "/dev/spidev1.0"
-#define SPI_SPEED			1000000
+#define SPI_SPEED			100000
 #define SPI_BITS_8			8
 #define BIT_ORDER_0			0                                   //MSB first
 
@@ -50,11 +52,12 @@ public:
     uint8_t setValue(const BYTE value);
     uint8_t getValue(BYTE &value);
 
+    Info SPI_Transfer(const BYTE value);
+
 private:
     SPI(){}
     QMutex mInstanceMutex;
     QMutex mConfigMutex;
-    static SPI *m_instance;
     int mFdSPI = 0;
 
     int openSPIDevice();
@@ -62,6 +65,7 @@ private:
     BYTE SPI_Read(void);
     BYTE SPI_Exchange(BYTE txData);
     void SPI_Write_Array(BYTE* tx, size_t msg_size);
+    BYTE SPI_ioctl(BYTE tx);
 
     bool isDeviceOpen = 0;
     QString m_command;
